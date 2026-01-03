@@ -2,7 +2,16 @@
 
 import { useActiveAccount, useActiveWalletChain } from "thirdweb/react";
 import { useState } from "react";
+import { getContract, prepareContractCall, toWei } from "thirdweb";
+import { polygon } from "thirdweb/chains"; // Or polygon
+import { useSendTransaction } from "thirdweb/react";
+import { client } from "@/app/client"; // You might need to export client from a shared file
 
+// ---------------------------------------------
+// CONFIGURATION (Move these to a config file later)
+// ---------------------------------------------
+const ESCROW_CONTRACT_ADDRESS = "0xB85CcC1edc1070a378da6A5Fbc662bdC703Ce296"; // <--- REPLACE WITH YOUR DEPLOYED CONTRACT ADDRESS
+const USDT_TOKEN_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a"; // (Example: cUSD on Celo Mainnet)
 function WalletCard({ address }: { address: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -43,6 +52,66 @@ function WalletCard({ address }: { address: string }) {
 }
 export default function DashboardPage() {
   const account = useActiveAccount();
+  const { mutate: sendTransaction, isPending } = useSendTransaction();
+
+  // ... existing state (step, formData, etc) ...
+
+  // THE REAL FUNCTION TO LOCK FUNDS
+  const handleLockFunds = async () => {
+    if (!account) return alert("Please login first");
+
+    const amountInWei = toWei(formData.price); // Converts "10" to "10000000000000000000"
+
+    // 1. Define the Escrow Contract
+    const escrowContract = getContract({
+      client,
+      chain: polygon,
+      address: ESCROW_CONTRACT_ADDRESS,
+    });
+
+    // 2. Define the Token Contract (USDT/cUSD)
+    const tokenContract = getContract({
+      client,
+      chain: polygon,
+      address: USDT_TOKEN_ADDRESS,
+    });
+
+    try {
+      // STEP A: Approve the Escrow Contract to spend user's money
+      // (This is a required safety step in crypto)
+      const approveTx = prepareContractCall({
+        contract: tokenContract,
+        method: "function approve(address spender, uint256 amount)",
+        params: [ESCROW_CONTRACT_ADDRESS, amountInWei],
+      });
+      await sendTransaction(approveTx);
+
+      // STEP B: Call createDeal() on the Escrow Contract
+      // Params: (DealID, SellerAddress, Amount)
+      // We generate a random Deal ID for now (In prod, use Database ID)
+      const dealId = BigInt(Math.floor(Math.random() * 1000000));
+
+      // Note: In a real app, you'd get the Seller's Wallet Address, not Phone.
+      // For now, we put a placeholder or your own address for testing.
+      const sellerWalletPlaceholder = "0x...";
+
+      const depositTx = prepareContractCall({
+        contract: escrowContract,
+        method:
+          "function createDeal(uint256 _dealId, address _seller, uint256 _amount)",
+        params: [dealId, sellerWalletPlaceholder, amountInWei],
+      });
+
+      await sendTransaction(depositTx);
+
+      // Success!
+      setStep(3);
+    } catch (error) {
+      console.error(error);
+      alert("Transaction failed! Do you have enough gas (CELO)?");
+    }
+  };
+
   const [step, setStep] = useState(1);
 
   // Form State
