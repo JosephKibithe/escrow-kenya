@@ -2,20 +2,24 @@
 
 import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
-import { inAppWallet } from "thirdweb/wallets";
-import { celo } from "thirdweb/chains";
-import { useRouter } from "next/navigation"; // To redirect after login
+import { inAppWallet } from "thirdweb/wallets"; // <--- Added smartWallet
+import { polygon } from "thirdweb/chains"; // <--- Ensure this is polygon
+import { useRouter } from "next/navigation";
 
-// 1. Initialize Client
 const client = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID!,
 });
 
-// 2. Configure Google Login
+// 🚀 THE FIX: WRAP IN SMART WALLET FOR GAS SPONSORSHIP
 const wallets = [
   inAppWallet({
     auth: {
-      options: ["google"], // <--- The change is here
+      options: ["google"],
+    },
+    smartAccount: {
+      chain: polygon,
+      sponsorGas: true, // This is the only setting you need!
+      // factoryAddress: <--- DELETE THIS LINE
     },
   }),
 ];
@@ -27,11 +31,9 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-          Salama Pay 🇰🇪
+          AHADI 🤝
         </h1>
-        <p className="text-gray-500 mt-2">
-          The safest way to buy & sell online.
-        </p>
+        <p className="text-gray-500 mt-2">Secure Deals. Zero Stress.</p>
       </div>
 
       <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
@@ -42,9 +44,12 @@ export default function Home() {
         <ConnectButton
           client={client}
           wallets={wallets}
-          chain={celo}
+          chain={polygon} // <--- Important: Must be Polygon
           connectButton={{ label: "Continue with Google" }}
-          // Redirect to dashboard immediately after login
+          accountAbstraction={{
+            chain: polygon, // <--- Force Smart Account on Polygon
+            sponsorGas: true, // <--- Double check: Enable Sponsorship
+          }}
           onConnect={() => {
             console.log("Connected!");
             router.push("/dashboard");
