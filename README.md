@@ -1,14 +1,26 @@
-# Salama Pay (AHADI)
+# AHADI (Promise)
 
-Secure escrow-style payments for Kenya, built with Next.js and thirdweb.
+AHADI (Swahili for "Promise") is a decentralized escrow application designed to bridge the trust gap between buyers and sellers.
+By leveraging the Polygon blockchain and smart contracts, AHADI replaces expensive, slow traditional intermediaries with immutable code.
 
-AHADI is currently implemented as a simple web UI that:
+Built for the "Instagram Vendor" economy, AHADI allows sellers to generate payment links and buyers to lock funds securely until goods are delivered.
 
-- Lets users sign in with Google via thirdweb In-App Wallet.
-- Connects on Polygon.
-- Locks USDT into an escrow smart contract by doing:
-  - `approve(escrow, amount)` on USDT
-  - `createDeal(dealId, seller, amount)` on `AhadiEscrow`
+## Key features
+
+- **Trustless escrow**
+  - Funds are held by a smart contract, not a company bank account.
+- **Payment links**
+  - Sellers generate unique links (like an invoice) that auto-fill deal details for the buyer.
+- **Gas sponsorship (account abstraction)**
+  - Users sign in with Google (thirdweb In-App Wallet smart accounts) and the app can sponsor gas.
+- **Stablecoin settlement**
+  - Built on USDT (Polygon) to avoid crypto volatility.
+- **Immutable timeouts**
+  - Every deal has a hard-coded expiry (e.g., 3 days). If the seller ghosts, the buyer can be refunded after timeout.
+- **O(1) scalability**
+  - The smart contract tracks `totalLockedFunds` in state to keep certain operations constant-time.
+- **Dispute resolution**
+  - Either party can raise a dispute; the contract owner can resolve.
 
 ## What this repo contains
 
@@ -21,22 +33,22 @@ AHADI is currently implemented as a simple web UI that:
 - **Next.js** (App Router)
 - **React**
 - **TailwindCSS v4**
-- **thirdweb v5** (auth + transactions)
-- **Solidity + OpenZeppelin** (escrow contract)
+- **thirdweb SDK v5** (React)
+- **Solidity (0.8.19) + OpenZeppelin** (Ownable, Pausable, ReentrancyGuard)
 
-## Product flow (current)
+## Architecture
 
-- **Login**: `GET /`
-  - Uses `thirdweb/react` `ConnectButton` with `inAppWallet` and **Google login**.
-  - On connect, redirects to `/dashboard`.
-- **Dashboard**: `GET /dashboard`
-  - Shows wallet info and a basic multi-step deal form.
-  - Contains transaction logic to **approve USDT** and then call `createDeal(...)` on the escrow contract.
-
-Notes:
-
-- The dashboard currently contains some placeholder / WIP logic (for example, seller address placeholders and M-Pesa placeholder button).
-- Chain + token configuration in the UI is still being iterated (see “Chain / token configuration” below).
+- **Deal creation**
+  - Seller defines item, price, and timeout, then generates a link.
+- **Locking**
+  - Buyer opens the link, signs in (Google), approves USDT, and calls `createDeal(seller, amount, timeoutSeconds)`.
+- **Holding**
+  - Funds sit in the `AhadiEscrowFinal` smart contract.
+- **Settlement**
+  - Happy path: buyer calls `releaseFunds(dealId)` and USDT is sent to the seller (minus protocol fee).
+  - Timeout: anyone can call `refundTimedOutDeal(dealId)` after expiry and funds return to the buyer.
+- **Dispute**
+  - Either party calls `raiseDispute(dealId)` and the owner resolves via `resolveDispute(dealId, winner)`.
 
 ## Local development
 
@@ -100,19 +112,19 @@ artifacts/
     AhadiEscrow.json    # ABI/bytecode artifact
 ```
 
-## Smart contract: `AhadiEscrow.sol`
+## Smart contract: `AhadiEscrowFinal` (in `contracts/AhadiEscrow.sol`)
 
-The contract implements a simple escrow model around an ERC-20 stablecoin:
+The contract implements an escrow model around an ERC-20 stablecoin (USDT on Polygon):
 
-- **createDeal(dealId, seller, amount)**
-  - Buyer transfers `amount` of `stablecoin` into the contract.
+- **createDeal(seller, amount, timeoutSeconds)**
+  - Creates a new deal ID (auto-incremented) and transfers `amount` of `stablecoin` into the contract.
 - **releaseFunds(dealId)**
   - Buyer releases escrow to seller.
   - A fee is taken (default: **2.5%** via `feeBasisPoints = 250`) and sent to `feeWallet`.
-- **raiseDispute(dealId)**
-  - Buyer or seller can mark the deal as disputed.
-- **resolveDispute(dealId, winner)**
-  - Owner-only admin resolution to pay the `winner`.
+- **refundTimedOutDeal(dealId)**
+  - After the deal expires, anyone can refund the buyer.
+- **raiseDispute(dealId)** / **resolveDispute(dealId, winner)**
+  - Either party can mark the deal as disputed; owner resolves to pay the `winner`.
 
 Key storage:
 
@@ -138,6 +150,10 @@ The dashboard currently targets Polygon mainnet and uses hardcoded addresses:
 
 - **Escrow contract**: `0xB85CcC1edc1070a378da6A5Fbc662bdC703Ce296`
 - **USDT (Polygon)**: `0xc2132D05D31c914a87C6611C10748AEb04B58e8F`
+
+Fees:
+
+- **Protocol fee**: 2.5% by default (configurable by owner, capped at 10%)
 
 If these are not the contracts you intend to use, you must update them (recommended: move them into env vars).
 
@@ -178,6 +194,8 @@ This is a standard Next.js app. Common options:
 
 - **Error: “No client ID found”**
   - `NEXT_PUBLIC_TEMPLATE_CLIENT_ID` is missing.
+- **Next.js warning about multiple lockfiles / wrong workspace root**
+  - If you see a warning about Next.js selecting `/home/joe/package-lock.json` instead of this repo’s lockfile, remove the extra lockfile or configure `turbopack.root` in `next.config.js`.
 - **Transactions fail / stuck on pending**
   - Confirm wallet is on the expected chain.
   - Confirm you have gas token for that chain.
@@ -199,3 +217,7 @@ This is a standard Next.js app. Common options:
 - Keep UI routes under `app/`.
 - Prefer moving chain/contract constants out of React components into a shared config.
 - Add a `.env.example` only if you want to share required env vars without leaking secrets.
+
+## License
+
+MIT

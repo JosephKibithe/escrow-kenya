@@ -1,25 +1,20 @@
 "use client";
 
-import { createThirdwebClient } from "thirdweb";
 import { ConnectButton } from "thirdweb/react";
-import { inAppWallet } from "thirdweb/wallets"; // <--- Added smartWallet
-import { polygon } from "thirdweb/chains"; // <--- Ensure this is polygon
+import { inAppWallet } from "thirdweb/wallets";
+import { polygon } from "thirdweb/chains";
+import { client } from "@/app/client";
 import { useRouter } from "next/navigation";
 
-const client = createThirdwebClient({
-  clientId: process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID!,
-});
-
-// 🚀 THE FIX: WRAP IN SMART WALLET FOR GAS SPONSORSHIP
+// 🚀 GASLESS CONFIG
 const wallets = [
   inAppWallet({
     auth: {
-      options: ["google"],
+      options: ["google", "email"],
     },
     smartAccount: {
       chain: polygon,
-      sponsorGas: true, // This is the only setting you need!
-      // factoryAddress: <--- DELETE THIS LINE
+      sponsorGas: true, // Enables Account Abstraction
     },
   }),
 ];
@@ -30,10 +25,10 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-5xl font-extrabold text-blue-900 tracking-tight">
           AHADI 🤝
         </h1>
-        <p className="text-gray-500 mt-2">Secure Deals. Zero Stress.</p>
+        <p className="text-gray-600 mt-2 text-lg">Secure Deals. Zero Stress.</p>
       </div>
 
       <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
@@ -44,11 +39,11 @@ export default function Home() {
         <ConnectButton
           client={client}
           wallets={wallets}
-          chain={polygon} // <--- Important: Must be Polygon
+          chain={polygon}
           connectButton={{ label: "Continue with Google" }}
           accountAbstraction={{
-            chain: polygon, // <--- Force Smart Account on Polygon
-            sponsorGas: true, // <--- Double check: Enable Sponsorship
+            chain: polygon,
+            sponsorGas: true,
           }}
           onConnect={() => {
             console.log("Connected!");
@@ -56,6 +51,10 @@ export default function Home() {
           }}
         />
       </div>
+
+      <p className="mt-8 text-xs text-gray-400">
+        Powered by Polygon & Thirdweb
+      </p>
     </div>
   );
 }
