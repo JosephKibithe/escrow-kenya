@@ -4,7 +4,7 @@ import { client } from "@/app/client";
 import { polygon } from "thirdweb/chains";
 
 // ⚠️ REPLACE WITH YOUR DEPLOYED V4 CONTRACT ADDRESS
-const ESCROW_CONTRACT_ADDRESS = "0xB85CcC1edc1070a378da6A5Fbc662bdC703Ce296";
+const ESCROW_CONTRACT_ADDRESS = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104";
 
 export function AdminStats() {
   const { mutate: sendTransaction } = useSendTransaction();

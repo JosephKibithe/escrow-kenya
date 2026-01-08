@@ -3,6 +3,7 @@ import { useState } from "react";
 export function SellerRequestGenerator({ account }: { account: any }) {
   const [amount, setAmount] = useState("");
   const [item, setItem] = useState("");
+  const [description, setDescription] = useState(""); // New State
   const [days, setDays] = useState("3");
   const [generatedLink, setGeneratedLink] = useState("");
 
@@ -19,6 +20,7 @@ export function SellerRequestGenerator({ account }: { account: any }) {
       seller: account.address,
       price: amount,
       item: item,
+      desc: description, // <--- Add Description to Link
       timeout: timeoutSeconds.toString(),
     });
 
@@ -56,6 +58,18 @@ export function SellerRequestGenerator({ account }: { account: any }) {
             placeholder="5000"
             className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none"
             onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+
+        {/* NEW: Description Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Description / Notes
+          </label>
+          <textarea
+            placeholder="Condition, meeting place, included accessories..."
+            className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none h-24"
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 

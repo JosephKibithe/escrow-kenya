@@ -6,7 +6,7 @@ import { ThirdwebProvider } from "thirdweb/react"; // <--- Import this
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Salama Pay",
+  title: "Ahadi",
   description: "Secure Escrow for Kenya",
 };
 
