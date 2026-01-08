@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: AhadiEscrow
+    name: AhadiEscrowFinal
     network: matic
     source:
       address: "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"
-      abi: AhadiEscrow
+      abi: AhadiEscrowFinal
       startBlock: 81265051
     mapping:
       kind: ethereum/events
@@ -28,8 +28,8 @@ dataSources:
         - Released
         - Unpaused
       abis:
-        - name: AhadiEscrow
-          file: ./abis/AhadiEscrow.json
+        - name: AhadiEscrowFinal
+          file: ./abis/AhadiEscrowFinal.json
       eventHandlers:
         - event: Deposited(indexed uint256,indexed address,indexed address,uint256,uint256)
           handler: handleDeposited
@@ -53,4 +53,4 @@ dataSources:
           handler: handleReleased
         - event: Unpaused(address)
           handler: handleUnpaused
-      file: ./src/ahadi-escrow.ts
+      file: ./src/ahadi-escrow-final.ts
