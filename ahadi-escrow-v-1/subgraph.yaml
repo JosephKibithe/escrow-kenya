@@ -33,24 +33,12 @@ dataSources:
       eventHandlers:
         - event: Deposited(indexed uint256,indexed address,indexed address,uint256,uint256)
           handler: handleDeposited
+        - event: Released(indexed uint256,indexed address,uint256,uint256)
+          handler: handleReleased
+        - event: Refunded(indexed uint256,indexed address,uint256)
+          handler: handleRefunded
         - event: DisputeRaised(indexed uint256,indexed address)
           handler: handleDisputeRaised
         - event: DisputeResolved(indexed uint256,indexed address,uint256)
           handler: handleDisputeResolved
-        - event: ExcessTokensRecovered(indexed address,indexed address,uint256)
-          handler: handleExcessTokensRecovered
-        - event: FeeUpdated(uint256)
-          handler: handleFeeUpdated
-        - event: FeeWalletUpdated(indexed address)
-          handler: handleFeeWalletUpdated
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: Paused(address)
-          handler: handlePaused
-        - event: Refunded(indexed uint256,indexed address,uint256)
-          handler: handleRefunded
-        - event: Released(indexed uint256,indexed address,uint256,uint256)
-          handler: handleReleased
-        - event: Unpaused(address)
-          handler: handleUnpaused
       file: ./src/ahadi-escrow-final.ts

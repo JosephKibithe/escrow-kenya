@@ -1,188 +1,85 @@
+import { BigInt, Bytes } from "@graphprotocol/graph-ts"
 import {
-  Deposited as DepositedEvent,
-  DisputeRaised as DisputeRaisedEvent,
-  DisputeResolved as DisputeResolvedEvent,
-  ExcessTokensRecovered as ExcessTokensRecoveredEvent,
-  FeeUpdated as FeeUpdatedEvent,
-  FeeWalletUpdated as FeeWalletUpdatedEvent,
-  OwnershipTransferred as OwnershipTransferredEvent,
-  Paused as PausedEvent,
-  Refunded as RefundedEvent,
-  Released as ReleasedEvent,
-  Unpaused as UnpausedEvent
-} from "../generated/AhadiEscrowFinal/AhadiEscrowFinal"
-import {
+  AhadiEscrowFinal,
   Deposited,
-  DisputeRaised,
-  DisputeResolved,
-  ExcessTokensRecovered,
-  FeeUpdated,
-  FeeWalletUpdated,
-  OwnershipTransferred,
-  Paused,
-  Refunded,
   Released,
-  Unpaused
-} from "../generated/schema"
+  Refunded,
+  DisputeRaised,
+  DisputeResolved
+} from "../generated/AhadiEscrowFinal/AhadiEscrowFinal"
+import { Deal, User } from "../generated/schema"
 
-export function handleDeposited(event: DepositedEvent): void {
-  let entity = new Deposited(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealId = event.params.dealId
-  entity.buyer = event.params.buyer
-  entity.seller = event.params.seller
-  entity.amount = event.params.amount
-  entity.timeoutInSeconds = event.params.timeoutInSeconds
+export function handleDeposited(event: Deposited): void {
+  // 1. Create or Load the Deal Entity
+  let deal = new Deal(event.params.dealId.toString())
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  // 2. Populate Data
+  // ⚡ FIX: Convert Bytes to Hex String for Entity Linking
+  deal.buyer = event.params.buyer.toHexString()
+  deal.seller = event.params.seller.toHexString()
+  
+  deal.amount = event.params.amount
+  deal.timeoutInSeconds = event.params.timeoutInSeconds
+  deal.createdAtTimestamp = event.block.timestamp
+  deal.depositTx = event.transaction.hash
 
-  entity.save()
+  // 3. Initialize Status
+  deal.isCompleted = false
+  deal.isDisputed = false
+  deal.isRefunded = false
+
+  // 4. Create Users BEFORE saving the deal
+  // The Deal entity now strictly requires these User entities to exist
+  let buyerId = event.params.buyer.toHexString()
+  let buyer = User.load(buyerId)
+  if (!buyer) {
+    buyer = new User(buyerId)
+    buyer.save()
+  }
+
+  let sellerId = event.params.seller.toHexString()
+  let seller = User.load(sellerId)
+  if (!seller) {
+    seller = new User(sellerId)
+    seller.save()
+  }
+
+  // 5. Save the Deal
+  deal.save()
 }
 
-export function handleDisputeRaised(event: DisputeRaisedEvent): void {
-  let entity = new DisputeRaised(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealId = event.params.dealId
-  entity.disputer = event.params.disputer
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleReleased(event: Released): void {
+  let deal = Deal.load(event.params.dealId.toString())
+  if (deal) {
+    deal.isCompleted = true
+    deal.releaseTx = event.transaction.hash
+    deal.save()
+  }
 }
 
-export function handleDisputeResolved(event: DisputeResolvedEvent): void {
-  let entity = new DisputeResolved(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealId = event.params.dealId
-  entity.winner = event.params.winner
-  entity.amount = event.params.amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleRefunded(event: Refunded): void {
+  let deal = Deal.load(event.params.dealId.toString())
+  if (deal) {
+    deal.isCompleted = true
+    deal.isRefunded = true
+    deal.refundTx = event.transaction.hash
+    deal.save()
+  }
 }
 
-export function handleExcessTokensRecovered(
-  event: ExcessTokensRecoveredEvent
-): void {
-  let entity = new ExcessTokensRecovered(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.token = event.params.token
-  entity.to = event.params.to
-  entity.amount = event.params.amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleDisputeRaised(event: DisputeRaised): void {
+  let deal = Deal.load(event.params.dealId.toString())
+  if (deal) {
+    deal.isDisputed = true
+    deal.save()
+  }
 }
 
-export function handleFeeUpdated(event: FeeUpdatedEvent): void {
-  let entity = new FeeUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.newFee = event.params.newFee
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleFeeWalletUpdated(event: FeeWalletUpdatedEvent): void {
-  let entity = new FeeWalletUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.newWallet = event.params.newWallet
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handlePaused(event: PausedEvent): void {
-  let entity = new Paused(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRefunded(event: RefundedEvent): void {
-  let entity = new Refunded(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealId = event.params.dealId
-  entity.buyer = event.params.buyer
-  entity.amount = event.params.amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleReleased(event: ReleasedEvent): void {
-  let entity = new Released(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.dealId = event.params.dealId
-  entity.seller = event.params.seller
-  entity.netAmount = event.params.netAmount
-  entity.fee = event.params.fee
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleUnpaused(event: UnpausedEvent): void {
-  let entity = new Unpaused(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleDisputeResolved(event: DisputeResolved): void {
+  let deal = Deal.load(event.params.dealId.toString())
+  if (deal) {
+    deal.isDisputed = false
+    deal.isCompleted = true
+    deal.save()
+  }
 }

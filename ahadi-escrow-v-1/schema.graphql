@@ -1,102 +1,25 @@
-type Deposited @entity(immutable: true) {
-  id: Bytes!
-  dealId: BigInt! # uint256
-  buyer: Bytes! # address
-  seller: Bytes! # address
-  amount: BigInt! # uint256
-  timeoutInSeconds: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+# We explicitly set immutable: false because deals change status (Locked -> Released)
+type Deal @entity(immutable: false) {
+  id: ID!
+  buyer: User! # Changed from Bytes! to User! to allow relationship linking
+  seller: User! # Changed from Bytes! to User! to allow relationship linking
+  amount: BigInt!
+  timeoutInSeconds: BigInt!
+  createdAtTimestamp: BigInt!
+  
+  # Status Flags
+  isCompleted: Boolean!
+  isDisputed: Boolean!
+  isRefunded: Boolean!
+  
+  # Transaction Hashes
+  depositTx: Bytes!
+  releaseTx: Bytes
+  refundTx: Bytes
 }
 
-type DisputeRaised @entity(immutable: true) {
-  id: Bytes!
-  dealId: BigInt! # uint256
-  disputer: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type DisputeResolved @entity(immutable: true) {
-  id: Bytes!
-  dealId: BigInt! # uint256
-  winner: Bytes! # address
-  amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type ExcessTokensRecovered @entity(immutable: true) {
-  id: Bytes!
-  token: Bytes! # address
-  to: Bytes! # address
-  amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type FeeUpdated @entity(immutable: true) {
-  id: Bytes!
-  newFee: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type FeeWalletUpdated @entity(immutable: true) {
-  id: Bytes!
-  newWallet: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Paused @entity(immutable: true) {
-  id: Bytes!
-  account: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Refunded @entity(immutable: true) {
-  id: Bytes!
-  dealId: BigInt! # uint256
-  buyer: Bytes! # address
-  amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Released @entity(immutable: true) {
-  id: Bytes!
-  dealId: BigInt! # uint256
-  seller: Bytes! # address
-  netAmount: BigInt! # uint256
-  fee: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Unpaused @entity(immutable: true) {
-  id: Bytes!
-  account: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type User @entity(immutable: false) {
+  id: ID! # Wallet Address
+  dealsAsBuyer: [Deal!]! @derivedFrom(field: "buyer")
+  dealsAsSeller: [Deal!]! @derivedFrom(field: "seller")
 }
