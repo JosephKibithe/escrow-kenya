@@ -1,48 +1,49 @@
-import { getContract, prepareContractCall } from "thirdweb";
-import { useReadContract, useSendTransaction } from "thirdweb/react";
-import { client } from "@/app/client";
-import { polygon } from "thirdweb/chains";
-
-// ⚠️ REPLACE WITH YOUR DEPLOYED V4 CONTRACT ADDRESS
-const ESCROW_CONTRACT_ADDRESS = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104";
+import { useReadContract, useWriteContract } from "wagmi";
+import { ESCROW_CONTRACT_ADDRESS, ESCROW_ABI } from "@/constants";
 
 export function AdminStats() {
-  const { mutate: sendTransaction } = useSendTransaction();
+  const { writeContractAsync } = useWriteContract();
 
-  const contract = getContract({
-    client,
-    chain: polygon,
-    address: ESCROW_CONTRACT_ADDRESS,
-  });
-
+  // 1. Fetch Contract Stats
   const { data: stats } = useReadContract({
-    contract,
-    method:
-      "function getContractStats() view returns (uint256, uint256, uint256, uint256)",
-    params: [],
+    address: ESCROW_CONTRACT_ADDRESS,
+    abi: ESCROW_ABI,
+    functionName: 'getContractStats',
   });
 
+  // 2. Fetch Fee
   const { data: feeBasisPoints } = useReadContract({
-    contract,
-    method: "function feeBasisPoints() view returns (uint256)",
-    params: [],
+    address: ESCROW_CONTRACT_ADDRESS,
+    abi: ESCROW_ABI,
+    functionName: 'feeBasisPoints',
   });
 
+  // Stats are returned as an array/tuple: [totalDeals, locked, balance, excess]
+  // Note: We need to handle 'undefined' while loading
   if (!stats) return null;
 
-  const totalDeals = stats[0].toString();
-  const tvl = Number(stats[1]) / 1_000_000;
-  const currentFee = Number(feeBasisPoints) / 100;
+  const [totalDeals, locked, balance, excess] = stats as [bigint, bigint, bigint, bigint];
 
-  const handleUpdateFee = () => {
+  const formattedDeals = totalDeals.toString();
+  const formattedTVL = Number(locked) / 1_000_000;
+  const formattedFee = feeBasisPoints ? Number(feeBasisPoints) / 100 : 0;
+
+  const handleUpdateFee = async () => {
     const newFee = prompt("Enter new fee % (e.g. 1.5):");
     if (!newFee) return;
-    const tx = prepareContractCall({
-      contract,
-      method: "function updateFee(uint256 _newFee)",
-      params: [BigInt(Number(newFee) * 100)],
-    });
-    sendTransaction(tx);
+    
+    try {
+      await writeContractAsync({
+        address: ESCROW_CONTRACT_ADDRESS,
+        abi: ESCROW_ABI,
+        functionName: 'updateFee',
+        args: [BigInt(Number(newFee) * 100)]
+      });
+      alert("Fee update transaction sent!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update fee");
+    }
   };
 
   return (
@@ -52,22 +53,19 @@ export function AdminStats() {
       </div>
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-slate-800 p-3 rounded">
-          <p className="text-slate-400 text-xs">Deals</p>
-          <p className="text-xl font-bold">{totalDeals}</p>
+            <p className="text-slate-400 text-xs">Deals</p>
+            <p className="text-xl font-bold">{formattedDeals}</p>
         </div>
         <div className="bg-slate-800 p-3 rounded">
-          <p className="text-slate-400 text-xs">TVL</p>
-          <p className="text-xl font-bold text-green-400">${tvl}</p>
+            <p className="text-slate-400 text-xs">TVL</p>
+            <p className="text-xl font-bold text-green-400">${formattedTVL}</p>
         </div>
         <div className="bg-slate-800 p-3 rounded">
-          <p className="text-slate-400 text-xs">Fee</p>
-          <p className="text-xl font-bold text-blue-400">{currentFee}%</p>
+            <p className="text-slate-400 text-xs">Fee</p>
+            <p className="text-xl font-bold text-blue-400">{formattedFee}%</p>
         </div>
       </div>
-      <button
-        onClick={handleUpdateFee}
-        className="border border-slate-600 text-xs py-2 px-3 rounded"
-      >
+      <button onClick={handleUpdateFee} className="border border-slate-600 text-xs py-2 px-3 rounded hover:bg-slate-800 transition">
         ⚙️ Change Fee
       </button>
     </div>

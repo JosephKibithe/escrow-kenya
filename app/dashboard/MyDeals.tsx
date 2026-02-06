@@ -1,34 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getContract, prepareContractCall } from "thirdweb";
-import { useActiveAccount, useSendTransaction } from "thirdweb/react";
-import { client } from "@/app/client"; 
-import { polygon } from "thirdweb/chains"; 
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { ESCROW_CONTRACT_ADDRESS, ESCROW_ABI } from "@/constants";
 
-const ESCROW_CONTRACT_ADDRESS = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"; 
-
-// ⚠️ REPLACE THIS WITH YOUR NEW GRAPH STUDIO URL 👇
+// ⚠️ REPLACE THIS WITH YOUR GRAPH STUDIO URL
 const GRAPH_QUERY_URL = "https://api.studio.thegraph.com/query/1722688/ahadi-escrow-v-1/v0.0.1";
 
 export function MyDeals() {
-  const account = useActiveAccount();
-  const { mutate: sendTransaction } = useSendTransaction();
+  const { address } = useAccount();
   
-  // Local state for graph data
+  // Wagmi Write Hooks
+  const { data: hash, writeContractAsync } = useWriteContract();
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+
   const [deals, setDeals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // 1. Fetch Data from The Graph
   useEffect(() => {
-    if (!account) return;
+    if (!address) return;
 
     const fetchDeals = async () => {
       setIsLoading(true);
       try {
-        const userAddress = account.address.toLowerCase();
+        const userAddress = address.toLowerCase();
         
-        // GraphQL Query
         const query = `
           {
             deals(
@@ -65,32 +62,30 @@ export function MyDeals() {
     };
 
     fetchDeals();
-    
-    // Poll every 10 seconds for updates
     const interval = setInterval(fetchDeals, 10000);
     return () => clearInterval(interval);
 
-  }, [account]);
+  }, [address]);
 
-  // 2. Handle Release Funds (Blockchain Action)
-  const handleRelease = (dealId: string) => {
+  // 2. Handle Release Funds
+  const handleRelease = async (dealId: string) => {
     if(!confirm("Release funds to Seller?")) return;
     
-    const contract = getContract({
-        client,
-        chain: polygon,
+    try {
+      await writeContractAsync({
         address: ESCROW_CONTRACT_ADDRESS,
-    });
-
-    const tx = prepareContractCall({
-      contract,
-      method: "function releaseFunds(uint256 _dealId)",
-      params: [BigInt(dealId)],
-    });
-    sendTransaction(tx);
+        abi: ESCROW_ABI,
+        functionName: 'releaseFunds',
+        args: [BigInt(dealId)]
+      });
+      // The UI will update automatically on next poll after block confirmation
+    } catch (e) {
+      console.error(e);
+      alert("Failed to release funds");
+    }
   };
 
-  if (isLoading && deals.length === 0) return <div className="text-center p-4 text-gray-500 animate-pulse">Loading data from The Graph...</div>;
+  if (isLoading && deals.length === 0) return <div className="text-center p-4 text-gray-500 animate-pulse">Loading data...</div>;
 
   return (
     <div className="mt-8">
@@ -100,14 +95,14 @@ export function MyDeals() {
         <div className="text-center bg-white p-6 rounded-lg border border-gray-100">
             <p className="text-gray-500 mb-2">No active deals found.</p>
             <p className="text-xs text-gray-400">
-                (Wallet: {account?.address.slice(0,6)}...{account?.address.slice(-4)})
+                (Wallet: {address?.slice(0,6)}...{address?.slice(-4)})
             </p>
         </div>
       ) : (
         <div className="space-y-4">
           {deals.map((deal: any) => {
             const amount = Number(deal.amount) / 1_000_000; 
-            const isBuyer = account && deal.buyer.id === account.address.toLowerCase();
+            const isBuyer = address && deal.buyer.id === address.toLowerCase();
             const statusColor = deal.isCompleted ? "bg-gray-100 text-gray-500" : "bg-white border-gray-200";
 
             return (
@@ -126,9 +121,10 @@ export function MyDeals() {
                 {!deal.isCompleted && isBuyer ? (
                   <button 
                     onClick={() => handleRelease(deal.id)}
+                    disabled={isConfirming}
                     className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm transition"
                   >
-                    ✅ Release
+                    {isConfirming ? "Processing..." : "✅ Release"}
                   </button>
                 ) : !deal.isCompleted ? (
                     <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded font-medium">

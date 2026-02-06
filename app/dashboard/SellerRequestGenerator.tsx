@@ -1,15 +1,33 @@
-import { useState } from "react";
+"use client";
 
-export function SellerRequestGenerator({ account }: { account: any }) {
+import { useState } from "react";
+import { useAccount } from "wagmi";
+
+// --------------------------------------------------------------------------------------
+// TYPES
+// --------------------------------------------------------------------------------------
+interface SellerRequestGeneratorProps {
+  account?: {
+    address?: string;
+  };
+}
+
+export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps) {
+  // Allow using passed 'account' (Thirdweb) OR internal hook (Wagmi)
+  const { address: wagmiAddress, isConnected: wagmiConnected } = useAccount();
+
+  const address = account?.address || wagmiAddress;
+  const isConnected = !!address || wagmiConnected; // If we have an address, we are connected enough
+  
   const [amount, setAmount] = useState("");
   const [item, setItem] = useState("");
-  const [description, setDescription] = useState(""); // New State
+  const [description, setDescription] = useState("");
   const [days, setDays] = useState("3");
   const [generatedLink, setGeneratedLink] = useState("");
 
   const generateLink = () => {
-    if (!account) return alert("Connect wallet first!");
-
+    if (!isConnected || !address) return alert("Connect wallet first!");
+    
     // Calculate seconds
     const timeoutSeconds = Number(days) * 24 * 60 * 60;
 
@@ -17,11 +35,11 @@ export function SellerRequestGenerator({ account }: { account: any }) {
     const baseUrl = window.location.origin + "/dashboard";
     const params = new URLSearchParams({
       tab: "buy", // Force buyer view
-      seller: account.address,
+      seller: address,
       price: amount,
       item: item,
-      desc: description, // <--- Add Description to Link
-      timeout: timeoutSeconds.toString(),
+      desc: description,
+      timeout: timeoutSeconds.toString()
     });
 
     setGeneratedLink(`${baseUrl}?${params.toString()}`);
@@ -29,56 +47,45 @@ export function SellerRequestGenerator({ account }: { account: any }) {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h3 className="text-xl font-bold mb-4 text-green-900">
-        Create Payment Link
-      </h3>
+      <h3 className="text-xl font-bold mb-4 text-green-900">Create Payment Link</h3>
       <p className="text-sm text-gray-500 mb-6">
         Generate a link to send to your buyer via WhatsApp/SMS.
       </p>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Item Name
-          </label>
-          <input
-            type="text"
+          <label className="block text-sm font-medium text-gray-700">Item Name</label>
+          <input 
+            type="text" 
             placeholder="e.g. Toyota Vitz 2017"
-            className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none"
+            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none"
             onChange={(e) => setItem(e.target.value)}
           />
         </div>
-
+        
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Price (USDT)
-          </label>
-          <input
-            type="number"
+          <label className="block text-sm font-medium text-gray-700">Price (USDT)</label>
+          <input 
+            type="number" 
             placeholder="5000"
-            className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none"
+            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none"
             onChange={(e) => setAmount(e.target.value)}
           />
         </div>
 
-        {/* NEW: Description Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Description / Notes
-          </label>
-          <textarea
+          <label className="block text-sm font-medium text-gray-700">Description / Notes</label>
+          <textarea 
             placeholder="Condition, meeting place, included accessories..."
-            className="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none h-24"
+            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none h-24"
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Offer Expires In
-          </label>
-          <select
-            className="w-full p-3 border rounded-lg bg-gray-50"
+          <label className="block text-sm font-medium text-gray-700">Offer Expires In</label>
+          <select 
+            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900"
             value={days}
             onChange={(e) => setDays(e.target.value)}
           >
@@ -89,7 +96,7 @@ export function SellerRequestGenerator({ account }: { account: any }) {
           </select>
         </div>
 
-        <button
+        <button 
           onClick={generateLink}
           className="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-100"
         >
@@ -98,10 +105,8 @@ export function SellerRequestGenerator({ account }: { account: any }) {
 
         {generatedLink && (
           <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200 break-all">
-            <p className="text-xs text-green-800 font-mono mb-2">
-              {generatedLink}
-            </p>
-            <button
+            <p className="text-xs text-green-800 font-mono mb-2">{generatedLink}</p>
+            <button 
               onClick={() => {
                 navigator.clipboard.writeText(generatedLink);
                 alert("Link Copied!");
