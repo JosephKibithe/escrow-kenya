@@ -32,3 +32,7 @@ typechain-types
 
 # Hardhat files
 cache
+.env
+.env.local
+node_modules/
+secret.json

@@ -1,7 +1,6 @@
-export const ESCROW_CONTRACT_ADDRESS = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104";
+export const ESCROW_CONTRACT_ADDRESS = "0x7445B80f07ffcC031cecd3FC645878Baa8373819"; 
 export const USDT_TOKEN_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
-// Minimal ABI for ERC20 Approve
 export const ERC20_ABI = [
   {
     inputs: [
@@ -22,8 +21,20 @@ export const ERC20_ABI = [
   }
 ] as const;
 
-// FULL ABI for AhadiEscrowFinal
 export const ESCROW_ABI = [
+  // --- CUSTOM ERRORS (New) ---
+  { inputs: [], name: "InvalidDealID", type: "error" },
+  { inputs: [], name: "Unauthorized", type: "error" },
+  { inputs: [], name: "DealClosed", type: "error" },
+  { inputs: [], name: "DealDisputed", type: "error" },
+  { inputs: [], name: "DealNotDisputed", type: "error" },
+  { inputs: [], name: "DealNotTimedOut", type: "error" },
+  { inputs: [], name: "InvalidState", type: "error" },
+  { inputs: [], name: "InvalidAmount", type: "error" },
+  { inputs: [], name: "InvalidAddress", type: "error" },
+  { inputs: [], name: "SelfDeal", type: "error" },
+  { inputs: [], name: "TimeoutRange", type: "error" },
+
   // --- USER FUNCTIONS ---
   {
     inputs: [
