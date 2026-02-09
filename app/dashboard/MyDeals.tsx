@@ -7,6 +7,15 @@ import { ESCROW_CONTRACT_ADDRESS, ESCROW_ABI } from "@/constants";
 // ⚠️ REPLACE THIS WITH YOUR GRAPH STUDIO URL
 const GRAPH_QUERY_URL = "https://api.studio.thegraph.com/query/1722688/ahadi-escrow-v-1/v0.0.1";
 
+interface Deal {
+  id: string;
+  amount: string;
+  buyer: { id: string };
+  seller: { id: string };
+  isCompleted: boolean;
+  isDisputed: boolean;
+}
+
 export function MyDeals() {
   const { address } = useAccount();
   
@@ -14,7 +23,7 @@ export function MyDeals() {
   const { data: hash, writeContractAsync } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
-  const [deals, setDeals] = useState<any[]>([]);
+  const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // 1. Fetch Data from The Graph
@@ -55,7 +64,10 @@ export function MyDeals() {
           setDeals(json.data.deals);
         }
       } catch (error) {
-        console.error("Graph Error:", error);
+        // Log error without exposing details to users in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Graph Error:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -100,7 +112,7 @@ export function MyDeals() {
         </div>
       ) : (
         <div className="space-y-4">
-          {deals.map((deal: any) => {
+          {deals.map((deal) => {
             const amount = Number(deal.amount) / 1_000_000; 
             const isBuyer = address && deal.buyer.id === address.toLowerCase();
             const statusColor = deal.isCompleted ? "bg-gray-100 text-gray-500" : "bg-white border-gray-200";

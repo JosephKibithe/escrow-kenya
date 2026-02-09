@@ -118,10 +118,13 @@ function DashboardContent() {
 
       setSuccess(true);
 
-    } catch (error: any) {
-      console.error("Transaction Error:", error);
+    } catch (error: unknown) {
+      // Log error without exposing details to users in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Transaction Error:", error);
+      }
       // Clean error messaging for user
-      const msg = error?.shortMessage || error?.message || "Transaction failed. Check wallet balance.";
+      const msg = error instanceof Error ? error.message : "Transaction failed. Check wallet balance.";
       alert(`Error: ${msg}`);
     } finally {
       setIsProcessing(false);
