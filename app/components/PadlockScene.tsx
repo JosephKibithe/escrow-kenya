@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -10,53 +10,7 @@ import * as THREE from 'three';
  *  No external HDR downloads – everything is self-contained.
  * --------------------------------------------------------------- */
 
-/** Creates a simple gradient cubemap texture for metallic reflections */
-function useEnvMap() {
-  return useMemo(() => {
-    const size = 128;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d')!;
-
-    // Warm studio-like gradient for gold reflections
-    const faces: THREE.Texture[] = [];
-    const colors = [
-      ['#3a3020', '#6b5a30', '#f5e6c8'], // +x warm right
-      ['#2a2018', '#5a4a28', '#e8d4b0'], // -x warm left
-      ['#f5e6c8', '#ffe8a0', '#fff5dc'], // +y bright top (sky/lights)
-      ['#1a1510', '#2a2018', '#3a2a18'], // -y dark bottom (floor)
-      ['#3a3020', '#8a7a50', '#f0dca0'], // +z warm front
-      ['#2a2018', '#5a4a28', '#d8c490'], // -z warm back
-    ];
-
-    for (const [c1, c2, c3] of colors) {
-      const grad = ctx.createLinearGradient(0, 0, 0, size);
-      grad.addColorStop(0, c3);
-      grad.addColorStop(0.5, c2);
-      grad.addColorStop(1, c1);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, size, size);
-
-      // Add some bright spots to simulate studio lights
-      ctx.fillStyle = 'rgba(255, 240, 200, 0.3)';
-      ctx.beginPath();
-      ctx.arc(size * 0.3, size * 0.3, size * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(size * 0.7, size * 0.4, size * 0.1, 0, Math.PI * 2);
-      ctx.fill();
-
-      const tex = new THREE.CanvasTexture(canvas);
-      faces.push(tex);
-    }
-
-    // Create a CubeTexture from the 6 canvas faces
-    const cubeRT = new THREE.WebGLCubeRenderTarget(size);
-    // Use a simpler approach: set scene environment via PMREMGenerator
-    return { faces, size };
-  }, []);
-}
+/* useEnvMap removed — env map is handled by SceneEnvironment via PMREMGenerator */
 
 /** Component that sets the scene environment for metallic reflections */
 function SceneEnvironment() {
@@ -129,8 +83,19 @@ function SceneEnvironment() {
     const envMap = pmremGenerator.fromScene(envScene, 0.04).texture;
     scene.environment = envMap;
 
-    // Cleanup
+    // Cleanup env scene geometries & materials (per threejs-lighting skill)
     pmremGenerator.dispose();
+    envScene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        const mesh = obj as THREE.Mesh;
+        mesh.geometry.dispose();
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((m) => m.dispose());
+        } else {
+          mesh.material.dispose();
+        }
+      }
+    });
 
     return () => {
       envMap.dispose();
@@ -173,11 +138,19 @@ function PadlockBody() {
       new THREE.MeshPhysicalMaterial({
         color: new THREE.Color('#F5B800'),
         metalness: 1.0,
-        roughness: 0.15,
-        envMapIntensity: 1.8,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.1,
+        roughness: 0.18,
+        envMapIntensity: 2.0,
+        clearcoat: 0.4,
+        clearcoatRoughness: 0.08,
         reflectivity: 1.0,
+        // Brushed metal effect (from threejs-materials skill)
+        anisotropy: 0.3,
+        anisotropyRotation: Math.PI / 4,
+        specularIntensity: 1.2,
+        specularColor: new THREE.Color('#FFE4A0'),
+        // Subtle warmth that persists in shadows
+        emissive: new THREE.Color('#3a2800'),
+        emissiveIntensity: 0.15,
       }),
     []
   );
@@ -209,6 +182,10 @@ function PadlockShackle() {
         clearcoat: 0.5,
         clearcoatRoughness: 0.05,
         reflectivity: 1.0,
+        // Polished steel anisotropy (from threejs-materials skill)
+        anisotropy: 0.15,
+        specularIntensity: 1.0,
+        specularColor: new THREE.Color('#E0E0E8'),
       }),
     []
   );
@@ -251,6 +228,12 @@ function GoldKey() {
         clearcoat: 0.25,
         clearcoatRoughness: 0.1,
         reflectivity: 1.0,
+        // Match body brushed metal style
+        anisotropy: 0.2,
+        specularIntensity: 1.1,
+        specularColor: new THREE.Color('#FFE4A0'),
+        emissive: new THREE.Color('#3a2800'),
+        emissiveIntensity: 0.1,
       }),
     []
   );
@@ -276,9 +259,15 @@ function GoldKey() {
 function PadlockGroup() {
   const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.35;
+      // Idle floating bob (from threejs-animation skill — oscillation pattern)
+      const t = state.clock.getElapsedTime();
+      groupRef.current.position.y = Math.sin(t * 1.2) * 0.06;
+      // Subtle scale pulse ("breathing") 
+      const s = 1 + Math.sin(t * 0.8) * 0.012;
+      groupRef.current.scale.setScalar(s);
     }
   });
 
@@ -313,6 +302,8 @@ export default function PadlockScene({ className = '' }: { className?: string })
         <directionalLight position={[4, 6, 5]} intensity={1.5} color="#FACC15" />
         <directionalLight position={[-3, 3, -3]} intensity={0.5} color="#FDE68A" />
         <pointLight position={[0, -2, 4]} intensity={0.6} color="#ffffff" />
+        {/* Back rim light for depth separation (from threejs-lighting skill — three-point pattern) */}
+        <pointLight position={[0, 1, -4]} intensity={0.4} color="#FFD700" />
         <spotLight
           position={[2, 4, 3]}
           angle={0.4}
