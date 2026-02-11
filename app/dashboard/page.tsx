@@ -19,7 +19,7 @@ const ADMIN_WALLET = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"; // Your admin
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500 animate-pulse">Loading AHADI...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-yellow-500/50 animate-pulse">Loading AHADI...</div>}>
       <DashboardContent />
     </Suspense>
   );
@@ -146,36 +146,36 @@ function DashboardContent() {
       
       {/* --- SCENARIO A: BUYER MODE (Invoice) --- */}
       {viewMode === "buyer" && !success && (
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-100 relative animate-in fade-in zoom-in-95 duration-300 mx-auto w-full max-w-lg">
+        <div className="liquid-glass-yellow p-6 rounded-xl relative mx-auto w-full max-w-lg">
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
-                    <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full animate-pulse tracking-wide">
+                    <span className="bg-yellow-500/15 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full animate-pulse tracking-wide border border-yellow-500/20">
                         INCOMING INVOICE
                     </span>
                 </div>
                 
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-2 leading-tight">{formData.title}</h2>
-                <div className="text-gray-500 text-sm mb-6 flex flex-wrap items-center gap-2">
+                <h2 className="text-3xl font-extrabold text-white mb-2 leading-tight">{formData.title}</h2>
+                <div className="text-gray-400 text-sm mb-6 flex flex-wrap items-center gap-2">
                     <span>Seller:</span>
-                    <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-700 font-bold border border-gray-200">
+                    <span className="font-mono bg-white/5 px-2 py-1 rounded text-yellow-400 font-bold border border-white/10">
                       {formData.sellerAddress.slice(0,6)}...{formData.sellerAddress.slice(-4)}
                     </span>
                 </div>
                 
                 {formData.description && (
-                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6 text-sm text-gray-800">
-                        <span className="font-bold block text-yellow-900 mb-1 uppercase text-xs tracking-wider">Item Details</span>
+                    <div className="liquid-glass p-4 rounded-lg mb-6 text-sm text-gray-300">
+                        <span className="font-bold block text-yellow-400 mb-1 uppercase text-xs tracking-wider">Item Details</span>
                         {formData.description}
                     </div>
                 )}
                 
-                <div className="bg-blue-50 p-6 rounded-xl text-center border-2 border-blue-200 border-dashed mb-6">
+                <div className="liquid-glass p-6 rounded-xl text-center border-2 border-yellow-500/20 border-dashed mb-6">
                     <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Total Due</p>
                     <div className="flex justify-center items-baseline gap-1">
-                      <span className="text-5xl font-extrabold text-blue-600 tracking-tight">
+                      <span className="text-5xl font-extrabold text-yellow-400 tracking-tight text-glow-yellow">
                           {Number(formData.price).toLocaleString()}
                       </span>
-                      <span className="text-xl font-bold text-blue-400">USDT</span>
+                      <span className="text-xl font-bold text-yellow-600">USDT</span>
                     </div>
                 </div>
             </div>
@@ -183,17 +183,17 @@ function DashboardContent() {
             <button 
               onClick={handleLockFunds} 
               disabled={isProcessing}
-              className={`w-full font-bold py-4 px-6 rounded-xl transition-all shadow-md text-lg text-white
+              className={`w-full font-bold py-4 px-6 rounded-xl transition-all text-lg
                   ${isProcessing 
-                    ? "bg-gray-400 cursor-not-allowed" 
-                    : "bg-green-600 hover:bg-green-700 active:scale-[0.98] shadow-green-200"}`}
+                    ? "bg-gray-700 cursor-not-allowed text-gray-400" 
+                    : "bg-gradient-to-r from-yellow-500 to-amber-500 text-black hover:from-yellow-400 hover:to-amber-400 active:scale-[0.98] glow-yellow"}`}
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
+                  <span className="w-4 h-4 border-2 border-yellow-300/30 border-t-yellow-300 rounded-full animate-spin"/>
                   {statusMsg || "Processing..."}
                 </span>
-              ) : "✅ Accept & Lock Funds"}
+              ) : "🔒 Accept & Lock Funds"}
             </button>
         </div>
       )}
@@ -205,25 +205,25 @@ function DashboardContent() {
 
       {/* --- SCENARIO C: SUCCESS --- */}
       {success && (
-        <div className="bg-white p-8 rounded-2xl shadow-xl text-center border-2 border-green-100 animate-in fade-in zoom-in-95 max-w-lg mx-auto">
-            <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="liquid-glass-yellow p-8 rounded-2xl text-center max-w-lg mx-auto">
+            <div className="w-24 h-24 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-5xl">✅</span>
             </div>
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">Funds Locked!</h2>
-            <p className="text-gray-500 mb-8 text-lg leading-relaxed">
-              We are holding <strong>{formData.price} USDT</strong> safely on Polygon.
+            <h2 className="text-3xl font-extrabold text-white mb-3">Funds Locked!</h2>
+            <p className="text-gray-400 mb-8 text-lg leading-relaxed">
+              We are holding <strong className="text-yellow-400">{formData.price} USDT</strong> safely on Polygon.
               Notify the seller to deliver the item.
             </p>
             <button 
               onClick={clearUrlAndReset}
-              className="w-full border-2 border-gray-200 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98]"
+              className="w-full liquid-glass-button text-yellow-400 font-bold py-4 rounded-xl transition-all active:scale-[0.98]"
             >
               Back to Dashboard
             </button>
         </div>
       )}
 
-      <hr className="my-10 border-gray-200" />
+      <hr className="my-10 border-white/5" />
       
       {/* Lazy Load Heavy Components */}
       <MyDeals />

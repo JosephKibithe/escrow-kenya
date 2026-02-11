@@ -47,25 +47,25 @@ export function AdminStats() {
   };
 
   return (
-    <div className="bg-slate-900 text-white p-6 rounded-xl shadow-lg mt-8">
+    <div className="liquid-glass-yellow p-6 rounded-xl mt-8 relative overflow-hidden shimmer-overlay">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">👑 Admin Panel</h2>
+        <h2 className="text-xl font-bold text-yellow-400">👑 Admin Panel</h2>
       </div>
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-slate-800 p-3 rounded">
-            <p className="text-slate-400 text-xs">Deals</p>
-            <p className="text-xl font-bold">{formattedDeals}</p>
+        <div className="liquid-glass p-3 rounded-lg">
+            <p className="text-gray-500 text-xs">Deals</p>
+            <p className="text-xl font-bold text-white">{formattedDeals}</p>
         </div>
-        <div className="bg-slate-800 p-3 rounded">
-            <p className="text-slate-400 text-xs">TVL</p>
-            <p className="text-xl font-bold text-green-400">${formattedTVL}</p>
+        <div className="liquid-glass p-3 rounded-lg">
+            <p className="text-gray-500 text-xs">TVL</p>
+            <p className="text-xl font-bold text-yellow-400">${formattedTVL}</p>
         </div>
-        <div className="bg-slate-800 p-3 rounded">
-            <p className="text-slate-400 text-xs">Fee</p>
-            <p className="text-xl font-bold text-blue-400">{formattedFee}%</p>
+        <div className="liquid-glass p-3 rounded-lg">
+            <p className="text-gray-500 text-xs">Fee</p>
+            <p className="text-xl font-bold text-amber-400">{formattedFee}%</p>
         </div>
       </div>
-      <button onClick={handleUpdateFee} className="border border-slate-600 text-xs py-2 px-3 rounded hover:bg-slate-800 transition">
+      <button onClick={handleUpdateFee} className="liquid-glass-button text-yellow-400 text-xs py-2 px-3 rounded-lg font-medium">
         ⚙️ Change Fee
       </button>
     </div>

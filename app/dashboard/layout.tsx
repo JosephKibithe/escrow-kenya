@@ -20,8 +20,8 @@ export default function DashboardLayout({
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 selection:bg-blue-100 selection:text-blue-900">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 transition-all duration-200">
+    <div className="min-h-screen bg-[#0A0A0A] pb-20 selection:bg-yellow-500/30 selection:text-yellow-900">
+      <nav className="liquid-glass-nav sticky top-0 z-50 transition-all duration-200">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           
           {/* Navigation - Optimized Touch Target for Mobile */}
@@ -32,14 +32,14 @@ export default function DashboardLayout({
             aria-label="Back to Home"
             title="Back to Home"
           >
-            <span className="text-2xl group-hover:scale-110 transition-transform duration-200 filter drop-shadow-sm">
-              🤝
-            </span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <span className="text-black text-sm font-bold">🔒</span>
+            </div>
             <div className="flex flex-col">
-              <h1 className="font-extrabold text-xl tracking-tight text-blue-900 leading-none group-hover:text-blue-700 transition-colors">
+              <h1 className="font-extrabold text-xl tracking-tight text-white leading-none group-hover:text-yellow-400 transition-colors">
                 AHADI
               </h1>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-yellow-500 transition-colors">
                 Home
               </span>
             </div>
@@ -50,15 +50,15 @@ export default function DashboardLayout({
              <button 
                onClick={() => open()} 
                className={`
-                 text-sm font-medium py-2.5 px-5 rounded-full transition-all duration-200 shadow-sm
+                 text-sm font-medium py-2.5 px-5 rounded-full transition-all duration-200
                  ${mounted && isConnected 
-                   ? "bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100" 
-                   : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md hover:-translate-y-0.5"
+                   ? "liquid-glass-yellow text-yellow-400" 
+                   : "bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-bold hover:from-yellow-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5"
                  }
                `}
              >
                {mounted && isConnected 
-                 ? <span className="flex items-center gap-2"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"/>{address?.slice(0,4)}...{address?.slice(-4)}</span>
+                 ? <span className="flex items-center gap-2"><span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"/>{address?.slice(0,4)}...{address?.slice(-4)}</span>
                  : "Connect Wallet"
                }
              </button>
@@ -67,7 +67,7 @@ export default function DashboardLayout({
       </nav>
 
       {/* Main Content Area */}
-      <main className="max-w-md mx-auto p-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <main className="max-w-md mx-auto p-4">
         {children}
       </main>
     </div>

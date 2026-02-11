@@ -46,72 +46,72 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h3 className="text-xl font-bold mb-4 text-green-900">Create Payment Link</h3>
+    <div className="liquid-glass p-6 rounded-xl relative overflow-hidden shimmer-overlay">
+      <h3 className="text-xl font-bold mb-4 text-yellow-400">Create Payment Link</h3>
       <p className="text-sm text-gray-500 mb-6">
         Generate a link to send to your buyer via WhatsApp/SMS.
       </p>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Item Name</label>
+          <label className="block text-sm font-medium text-gray-400 mb-1">Item Name</label>
           <input 
             type="text" 
             placeholder="e.g. Toyota Vitz 2017"
-            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none"
+            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/30 outline-none transition-all"
             onChange={(e) => setItem(e.target.value)}
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">Price (USDT)</label>
+          <label className="block text-sm font-medium text-gray-400 mb-1">Price (USDT)</label>
           <input 
             type="number" 
             placeholder="5000"
-            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none"
+            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/30 outline-none transition-all"
             onChange={(e) => setAmount(e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Description / Notes</label>
+          <label className="block text-sm font-medium text-gray-400 mb-1">Description / Notes</label>
           <textarea 
             placeholder="Condition, meeting place, included accessories..."
-            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500 outline-none h-24"
+            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/30 outline-none h-24 transition-all"
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Offer Expires In</label>
+          <label className="block text-sm font-medium text-gray-400 mb-1">Offer Expires In</label>
           <select 
-            className="w-full p-3 border rounded-lg bg-gray-50 text-gray-900"
+            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white"
             value={days}
             onChange={(e) => setDays(e.target.value)}
           >
-            <option value="1">1 Day (Quick Sale)</option>
-            <option value="3">3 Days (Standard)</option>
-            <option value="7">7 Days (Shipping)</option>
-            <option value="30">30 Days (Long Term)</option>
+            <option value="1" className="bg-[#18181B]">1 Day (Quick Sale)</option>
+            <option value="3" className="bg-[#18181B]">3 Days (Standard)</option>
+            <option value="7" className="bg-[#18181B]">7 Days (Shipping)</option>
+            <option value="30" className="bg-[#18181B]">30 Days (Long Term)</option>
           </select>
         </div>
 
         <button 
           onClick={generateLink}
-          className="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-100"
+          className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-bold py-3 rounded-lg hover:from-yellow-400 hover:to-amber-400 transition-all glow-yellow active:scale-[0.98]"
         >
           🔗 Generate Link
         </button>
 
         {generatedLink && (
-          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200 break-all">
-            <p className="text-xs text-green-800 font-mono mb-2">{generatedLink}</p>
+          <div className="mt-4 p-4 liquid-glass-yellow rounded-lg break-all">
+            <p className="text-xs text-yellow-300 font-mono mb-2">{generatedLink}</p>
             <button 
               onClick={() => {
                 navigator.clipboard.writeText(generatedLink);
                 alert("Link Copied!");
               }}
-              className="text-xs bg-white border border-green-300 px-3 py-1 rounded text-green-700 font-bold hover:bg-green-50"
+              className="text-xs liquid-glass-button px-3 py-1 rounded text-yellow-400 font-bold"
             >
               Copy to Clipboard
             </button>

@@ -97,16 +97,16 @@ export function MyDeals() {
     }
   };
 
-  if (isLoading && deals.length === 0) return <div className="text-center p-4 text-gray-500 animate-pulse">Loading data...</div>;
+  if (isLoading && deals.length === 0) return <div className="text-center p-4 text-yellow-500/50 animate-pulse">Loading data...</div>;
 
   return (
     <div className="mt-8">
-      <h3 className="text-lg font-bold mb-4 text-gray-800">Your Active Promises</h3>
+      <h3 className="text-lg font-bold mb-4 text-white">Your Active Promises</h3>
       
       {deals.length === 0 ? (
-        <div className="text-center bg-white p-6 rounded-lg border border-gray-100">
+        <div className="text-center liquid-glass p-6 rounded-lg">
             <p className="text-gray-500 mb-2">No active deals found.</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-600">
                 (Wallet: {address?.slice(0,6)}...{address?.slice(-4)})
             </p>
         </div>
@@ -115,31 +115,30 @@ export function MyDeals() {
           {deals.map((deal) => {
             const amount = Number(deal.amount) / 1_000_000; 
             const isBuyer = address && deal.buyer.id === address.toLowerCase();
-            const statusColor = deal.isCompleted ? "bg-gray-100 text-gray-500" : "bg-white border-gray-200";
 
             return (
-              <div key={deal.id} className={`${statusColor} border p-4 rounded-xl flex justify-between items-center shadow-sm`}>
+              <div key={deal.id} className={`${deal.isCompleted ? 'liquid-glass opacity-60' : 'liquid-glass-yellow'} p-4 rounded-xl flex justify-between items-center`}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs px-2 py-0.5 rounded font-bold ${isBuyer ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded font-bold ${isBuyer ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/20" : "bg-white/5 text-gray-300 border border-white/10"}`}>
                         {isBuyer ? "YOU BUY" : "YOU SELL"}
                     </span>
-                    <span className="font-bold text-gray-800">Deal #{deal.id}</span>
-                    {deal.isCompleted && <span className="text-xs bg-gray-200 px-2 rounded">COMPLETED</span>}
+                    <span className="font-bold text-white">Deal #{deal.id}</span>
+                    {deal.isCompleted && <span className="text-xs bg-white/10 text-gray-400 px-2 rounded">COMPLETED</span>}
                   </div>
-                  <p className="text-sm text-gray-500">Locked: <span className="text-gray-900 font-bold">{amount} USDT</span></p>
+                  <p className="text-sm text-gray-500">Locked: <span className="text-yellow-400 font-bold">{amount} USDT</span></p>
                 </div>
                 
                 {!deal.isCompleted && isBuyer ? (
                   <button 
                     onClick={() => handleRelease(deal.id)}
                     disabled={isConfirming}
-                    className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm transition"
+                    className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black text-xs font-bold py-2 px-3 rounded transition-all active:scale-95"
                   >
                     {isConfirming ? "Processing..." : "✅ Release"}
                   </button>
                 ) : !deal.isCompleted ? (
-                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded font-medium">
+                    <span className="text-xs liquid-glass-yellow px-2 py-1 rounded font-medium text-yellow-400">
                         Waiting...
                     </span>
                 ) : (
