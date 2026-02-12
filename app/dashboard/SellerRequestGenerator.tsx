@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
+import { Link } from 'lucide-react';
 
 // --------------------------------------------------------------------------------------
 // TYPES
@@ -96,11 +97,15 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
           </select>
         </div>
 
+
+
         <button 
           onClick={generateLink}
           className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-bold py-3 rounded-lg hover:from-yellow-400 hover:to-amber-400 transition-all glow-yellow active:scale-[0.98]"
         >
-          🔗 Generate Link
+          <div className="flex items-center justify-center gap-2">
+            <Link className="w-4 h-4" /> Generate Link
+          </div>
         </button>
 
         {generatedLink && (

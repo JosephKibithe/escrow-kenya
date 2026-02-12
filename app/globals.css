@@ -23,6 +23,64 @@ body {
   font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
+/* ======== AUREX-STYLE GRID BACKGROUND ======== */
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Scattered squares effect */
+.grid-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Giant yellow glow orbs — aurex-style */
+.glow-orb-tl {
+  position: fixed;
+  top: -200px;
+  left: -200px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb-tr {
+  position: fixed;
+  top: -150px;
+  right: -150px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.10) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb-br {
+  position: fixed;
+  bottom: -200px;
+  right: -100px;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.14) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* ======== LIQUID GLASS EFFECTS ======== */
 
 .liquid-glass {
@@ -84,6 +142,96 @@ body {
   border-color: rgba(250, 204, 21, 0.35);
   box-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
   transform: translateY(-1px);
+}
+
+/* Enhanced Liquid Glass Button */
+.liquid-glass-cta {
+  background: linear-gradient(
+    135deg, 
+    rgba(250, 204, 21, 0.15) 0%, 
+    rgba(250, 204, 21, 0.05) 50%,
+    rgba(250, 204, 21, 0.1) 100%
+  );
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  box-shadow: 
+    0 4px 24px rgba(250, 204, 21, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 45%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 55%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.liquid-glass-cta:hover::before {
+  transform: translateX(100%);
+}
+
+.liquid-glass-cta:hover {
+  background: linear-gradient(
+    135deg, 
+    rgba(250, 204, 21, 0.25) 0%, 
+    rgba(250, 204, 21, 0.1) 50%,
+    rgba(250, 204, 21, 0.15) 100%
+  );
+  border-color: rgba(250, 204, 21, 0.4);
+  box-shadow: 
+    0 8px 32px rgba(250, 204, 21, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Dashboard Preview Card Glass */
+.liquid-glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.liquid-glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.03) 0%,
+    transparent 50%,
+    rgba(250, 204, 21, 0.02) 100%
+  );
+  pointer-events: none;
+}
+
+.liquid-glass-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(250, 204, 21, 0.15);
+  box-shadow: 
+    0 12px 48px rgba(250, 204, 21, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* ======== SHIMMER OVERLAY ======== */
@@ -170,4 +318,62 @@ body {
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+/* ======== TEXT SCRAMBLE ======== */
+
+.text-scramble-char {
+  display: inline-block;
+  color: rgba(250, 204, 21, 0.35);
+  transition: color 0.1s;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-scramble-resolved {
+  display: inline-block;
+  transition: color 0.15s ease-out;
+}
+
+/* ======== DASHBOARD PREVIEW ======== */
+
+.dashboard-preview-card {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+}
+
+.dashboard-preview-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 20px 60px rgba(250, 204, 21, 0.06),
+    0 0 0 1px rgba(250, 204, 21, 0.12);
+}
+
+.dashboard-preview-img {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ======== STEP NUMBER STYLING ======== */
+
+.step-number {
+  font-family: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ======== STACKING CARDS ======== */
+
+.stacking-card:hover {
+  transform: translate(-50%, -50%) translateY(-16px) rotate(0deg) scale(1.05) !important;
+  z-index: 30 !important;
+  box-shadow:
+    0 24px 60px rgba(250, 204, 21, 0.1),
+    0 0 0 1px rgba(250, 204, 21, 0.15);
+}
+
+/* ======== UTILITIES ======== */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.font-orbitron {
+  font-family: var(--font-orbitron), sans-serif;
 }

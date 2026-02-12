@@ -14,6 +14,7 @@ import { ESCROW_CONTRACT_ADDRESS, USDT_TOKEN_ADDRESS, ERC20_ABI, ESCROW_ABI } fr
 import { SellerRequestGenerator } from "./SellerRequestGenerator";
 import { MyDeals } from "./MyDeals";
 import { AdminStats } from "./AdminStats";
+import { CheckCircle, Lock } from 'lucide-react';
 
 const ADMIN_WALLET = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"; // Your admin wallet address
 
@@ -188,12 +189,14 @@ function DashboardContent() {
                     ? "bg-gray-700 cursor-not-allowed text-gray-400" 
                     : "bg-gradient-to-r from-yellow-500 to-amber-500 text-black hover:from-yellow-400 hover:to-amber-400 active:scale-[0.98] glow-yellow"}`}
             >
+
+
               {isProcessing ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-yellow-300/30 border-t-yellow-300 rounded-full animate-spin"/>
                   {statusMsg || "Processing..."}
                 </span>
-              ) : "🔒 Accept & Lock Funds"}
+              ) : <span className="flex items-center gap-2 justify-center"><Lock className="w-4 h-4" /> Accept & Lock Funds</span>}
             </button>
         </div>
       )}
@@ -207,7 +210,7 @@ function DashboardContent() {
       {success && (
         <div className="liquid-glass-yellow p-8 rounded-2xl text-center max-w-lg mx-auto">
             <div className="w-24 h-24 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-5xl">✅</span>
+              <CheckCircle className="w-12 h-12 text-yellow-400" />
             </div>
             <h2 className="text-3xl font-extrabold text-white mb-3">Funds Locked!</h2>
             <p className="text-gray-400 mb-8 text-lg leading-relaxed">

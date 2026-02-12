@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Orbitron } from "next/font/google";
 import "./globals.css";
 import ContextProvider from '@/context' // <--- Import the new provider
 import { headers } from "next/headers"; // Required for cookie handling
 
 const inter = Inter({ subsets: ["latin"] });
+const orbitron = Orbitron({ subsets: ["latin"], variable: '--font-orbitron' });
 
 export const metadata: Metadata = {
   title: "AHADI",
@@ -21,7 +22,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} ${orbitron.variable}`} suppressHydrationWarning>
         <ContextProvider cookies={cookies}>
             {children}
         </ContextProvider>

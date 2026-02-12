@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { useAccount } from 'wagmi';
 import { useAppKit } from '@reown/appkit/react';
 import { useRouter } from "next/navigation";
@@ -32,8 +33,13 @@ export default function DashboardLayout({
             aria-label="Back to Home"
             title="Back to Home"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <span className="text-black text-sm font-bold">🔒</span>
+            <div className="relative w-8 h-8 group-hover:scale-110 transition-transform duration-200">
+              <Image 
+                src="/padlock-logo.webp" 
+                alt="AHADI Logo" 
+                fill 
+                className="object-contain drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]"
+              />
             </div>
             <div className="flex flex-col">
               <h1 className="font-extrabold text-xl tracking-tight text-white leading-none group-hover:text-yellow-400 transition-colors">
