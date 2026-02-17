@@ -21,7 +21,7 @@ createAppKit({
   metadata: {
     name: 'AHADI',
     description: 'Trustless Escrow Protocol',
-    url: 'https://ahadi.com',
+    url: 'https://escrow-kenya.vercel.app/',
     icons: ['https://avatars.githubusercontent.com/u/179229932']
   },
   features: {

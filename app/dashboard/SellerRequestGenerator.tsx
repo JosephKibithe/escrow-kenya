@@ -107,7 +107,10 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
             <option value="1" className="bg-[#18181B]">1 Day (Quick Sale)</option>
             <option value="3" className="bg-[#18181B]">3 Days (Standard)</option>
             <option value="7" className="bg-[#18181B]">7 Days (Shipping)</option>
-            <option value="30" className="bg-[#18181B]">30 Days (Long Term)</option>
+            <option value="14" className="bg-[#18181B]">14 Days</option>
+            <option value="30" className="bg-[#18181B]">30 Days</option>
+            <option value="60" className="bg-[#18181B]">60 Days (Import / Build)</option>
+            <option value="90" className="bg-[#18181B]">90 Days (Long Term)</option>
           </select>
         </div>
 
