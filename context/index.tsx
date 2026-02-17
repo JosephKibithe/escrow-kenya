@@ -26,8 +26,8 @@ createAppKit({
   },
   features: {
     analytics: true,
-    email: true, // Set to true if you want Email/Google login via Reown
-    socials: [], 
+    email: true,
+    socials: ['google', 'x', 'apple', 'farcaster'],
   }
 })
 

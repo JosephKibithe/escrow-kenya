@@ -78,7 +78,7 @@ function DashboardContent() {
   // 4. Secure Transaction Logic
   const handleLockFunds = async () => {
     if (!mounted) return;
-    if (!isConnected || !address) return alert("Please connect wallet first");
+    if (!isConnected || !address) return alert("Please sign in first");
     if (!publicClient) return alert("Network connection issue. Please refresh.");
 
     // Input Validation

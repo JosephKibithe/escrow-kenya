@@ -67,7 +67,7 @@ export default function LandingPage() {
               onClick={handleEnterApp}
               className="liquid-glass-button text-yellow-400 px-8 py-3 rounded-full text-sm font-bold tracking-wide"
             >
-              {isConnected ? "Go to Dashboard →" : "Connect Wallet"}
+              {isConnected ? "Go to Dashboard →" : "Sign In"}
             </button>
           </div>
         </nav>

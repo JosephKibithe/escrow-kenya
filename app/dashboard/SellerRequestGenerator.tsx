@@ -29,7 +29,7 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
   const { toKes, isLoading: rateLoading } = useUsdtKesRate();
 
   const generateLink = () => {
-    if (!isConnected || !address) return alert("Connect wallet first!");
+    if (!isConnected || !address) return alert("Please sign in first!");
     
     // Calculate seconds
     const timeoutSeconds = Number(days) * 24 * 60 * 60;
