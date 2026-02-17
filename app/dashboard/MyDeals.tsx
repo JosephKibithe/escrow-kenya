@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ESCROW_CONTRACT_ADDRESS, ESCROW_ABI } from "@/constants";
 import { CheckCheck, Flag } from 'lucide-react';
+import { useUsdtKesRate } from "@/app/hooks/useCoingeckoPrice";
 
 // ⚠️ REPLACE THIS WITH YOUR GRAPH STUDIO URL
 const GRAPH_QUERY_URL = "https://api.studio.thegraph.com/query/1722688/ahadi-escrow-v-1/version/latest";
@@ -23,6 +24,7 @@ export function MyDeals() {
   // Wagmi Write Hooks
   const { data: hash, writeContractAsync } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+  const { toKes } = useUsdtKesRate();
 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +129,9 @@ export function MyDeals() {
                     <span className="font-bold text-white">Deal #{deal.id}</span>
                     {deal.isCompleted && <span className="text-xs bg-white/10 text-gray-400 px-2 rounded">COMPLETED</span>}
                   </div>
-                  <p className="text-sm text-gray-500">Locked: <span className="text-yellow-400 font-bold">{amount} USDT</span></p>
+                  <p className="text-sm text-gray-500">Locked: <span className="text-yellow-400 font-bold">{amount} USDT</span>
+                    {toKes(amount) && <span className="text-gray-600 ml-1">(≈ KES {toKes(amount)})</span>}
+                  </p>
                 </div>
                 
 

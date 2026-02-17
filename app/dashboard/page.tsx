@@ -15,6 +15,7 @@ import { SellerRequestGenerator } from "./SellerRequestGenerator";
 import { MyDeals } from "./MyDeals";
 import { AdminStats } from "./AdminStats";
 import { CheckCircle, Lock } from 'lucide-react';
+import { useUsdtKesRate } from "@/app/hooks/useCoingeckoPrice";
 
 const ADMIN_WALLET = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"; // Your admin wallet address
 
@@ -32,6 +33,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
+  const { toKes, isLoading: rateLoading } = useUsdtKesRate();
   
   // 2. State Management
   const [mounted, setMounted] = useState(false);
@@ -178,6 +180,18 @@ function DashboardContent() {
                       </span>
                       <span className="text-xl font-bold text-yellow-600">USDT</span>
                     </div>
+                    {formData.price && Number(formData.price) > 0 && (
+                      <p className="text-sm text-gray-500 mt-2">
+                        ≈{" "}
+                        {rateLoading ? (
+                          <span className="animate-pulse">loading rate…</span>
+                        ) : toKes(Number(formData.price)) ? (
+                          <span className="text-yellow-400/70 font-semibold">KES {toKes(Number(formData.price))}</span>
+                        ) : (
+                          <span className="text-gray-600">rate unavailable</span>
+                        )}
+                      </p>
+                    )}
                 </div>
             </div>
 

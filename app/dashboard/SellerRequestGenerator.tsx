@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { Link } from 'lucide-react';
+import { useUsdtKesRate } from "@/app/hooks/useCoingeckoPrice";
 
 // --------------------------------------------------------------------------------------
 // TYPES
@@ -25,6 +26,7 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
   const [description, setDescription] = useState("");
   const [days, setDays] = useState("3");
   const [generatedLink, setGeneratedLink] = useState("");
+  const { toKes, isLoading: rateLoading } = useUsdtKesRate();
 
   const generateLink = () => {
     if (!isConnected || !address) return alert("Connect wallet first!");
@@ -72,6 +74,18 @@ export function SellerRequestGenerator({ account }: SellerRequestGeneratorProps)
             className="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/30 outline-none transition-all"
             onChange={(e) => setAmount(e.target.value)}
           />
+          {amount && Number(amount) > 0 && (
+            <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+              ≈{" "}
+              {rateLoading ? (
+                <span className="animate-pulse">loading rate…</span>
+              ) : toKes(Number(amount)) ? (
+                <span className="text-yellow-400 font-semibold">KES {toKes(Number(amount))}</span>
+              ) : (
+                <span className="text-gray-600">rate unavailable</span>
+              )}
+            </p>
+          )}
         </div>
 
         <div>
