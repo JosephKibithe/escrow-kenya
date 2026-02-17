@@ -6,7 +6,7 @@ import { ESCROW_CONTRACT_ADDRESS, ESCROW_ABI } from "@/constants";
 import { CheckCheck, Flag } from 'lucide-react';
 
 // ⚠️ REPLACE THIS WITH YOUR GRAPH STUDIO URL
-const GRAPH_QUERY_URL = "https://api.studio.thegraph.com/query/1722688/ahadi-escrow-v-1/v0.0.1";
+const GRAPH_QUERY_URL = "https://api.studio.thegraph.com/query/1722688/ahadi-escrow-v-1/version/latest";
 
 interface Deal {
   id: string;
