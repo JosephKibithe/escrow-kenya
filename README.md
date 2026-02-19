@@ -36,9 +36,14 @@ app/
 │   └── GlassCard.tsx           # Reusable glass UI component
 ├── dashboard/
 │   ├── SellerRequestGenerator.tsx  # Logic for generating payment links
+│   ├── MyDeals.tsx                 # Buyer/Seller deal management
+│   ├── AdminStats.tsx              # Admin dashboard for disputes/fees
+│   ├── layout.tsx                  # Dashboard layout wrapper
 │   └── page.tsx                    # Main dashboard & contract interactions
 ├── contracts/
 │   └── AhadiEscrow.sol             # Core escrow logic
+├── constants/
+│   └── index.ts                    # Contract addresses & ABIs
 └── public/                         # Static assets (3D models, logos)
 ```
 
@@ -91,8 +96,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ---
 
 ## Smart Contract Details
--   **Network**: Polygon Amoy (Testnet) / Polygon Mainnet
--   **Token**: USDT
--   **Escrow**: Custom `AhadiEscrow` contract
+-   **Network**: Polygon Amoy (Testnet)
+-   **USDT (Testnet)**: `0xc2132D05D31c914a87C6611C10748AEb04B58e8F`
+-   **Escrow Contract**: `0x7445B80f07ffcC031cecd3FC645878Baa8373819`
 
 *> **Note**: Always verify chain ID and token addresses in `constants/index.ts` before mainnet deployment.*

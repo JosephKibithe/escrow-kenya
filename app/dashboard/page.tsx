@@ -14,7 +14,7 @@ import { ESCROW_CONTRACT_ADDRESS, USDT_TOKEN_ADDRESS, ERC20_ABI, ESCROW_ABI } fr
 import { SellerRequestGenerator } from "./SellerRequestGenerator";
 import { MyDeals } from "./MyDeals";
 import { AdminStats } from "./AdminStats";
-import { CheckCircle, Lock } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Lock } from 'lucide-react';
 import { useUsdtKesRate } from "@/app/hooks/useCoingeckoPrice";
 
 const ADMIN_WALLET = "0x9e2bb48da7C201a379C838D9FACfB280819Ca104"; // Your admin wallet address
@@ -75,7 +75,11 @@ function DashboardContent() {
     }
   }, [paramSeller, paramPrice, paramItem, paramDesc, paramTimeout]);
 
-  // 4. Secure Transaction Logic
+  // 4. Self-Deal Detection
+  const isSelfDeal = address && formData.sellerAddress &&
+    address.toLowerCase() === formData.sellerAddress.toLowerCase();
+
+  // 5. Secure Transaction Logic
   const handleLockFunds = async () => {
     if (!mounted) return;
     if (!isConnected || !address) return alert("Please sign in first");
@@ -91,6 +95,24 @@ function DashboardContent() {
       const amountInUnits = parseUnits(formData.price, 6); 
       const timeoutBigInt = BigInt(formData.timeout);
 
+      // --- PRE-FLIGHT CHECKS ---
+      setStatusMsg("Checking wallet balance...");
+
+      // Check USDT balance
+      const balance = await publicClient.readContract({
+        address: USDT_TOKEN_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: 'balanceOf',
+        args: [address],
+      });
+
+      if ((balance as bigint) < amountInUnits) {
+        alert(`Insufficient USDT balance. You have ${Number(balance as bigint) / 1_000_000} USDT but need ${formData.price} USDT.`);
+        setIsProcessing(false);
+        setStatusMsg("");
+        return;
+      }
+
       // A. APPROVE USDT
       setStatusMsg("Step 1/2: Approving USDT...");
       const approveHash = await writeContractAsync({
@@ -103,7 +125,69 @@ function DashboardContent() {
       setStatusMsg("Waiting for Approval confirmation...");
       await publicClient.waitForTransactionReceipt({ hash: approveHash });
 
-      // B. CREATE DEAL
+      // Verify allowance was set correctly
+      const allowance = await publicClient.readContract({
+        address: USDT_TOKEN_ADDRESS,
+        abi: [{
+          inputs: [
+            { name: "owner", type: "address" },
+            { name: "spender", type: "address" }
+          ],
+          name: "allowance",
+          outputs: [{ name: "", type: "uint256" }],
+          stateMutability: "view",
+          type: "function"
+        }] as const,
+        functionName: 'allowance',
+        args: [address, ESCROW_CONTRACT_ADDRESS],
+      });
+
+      if ((allowance as bigint) < amountInUnits) {
+        alert(`Approval issue: allowance is ${Number(allowance as bigint) / 1_000_000} USDT, but ${formData.price} USDT is needed. Try approving again.`);
+        setIsProcessing(false);
+        setStatusMsg("");
+        return;
+      }
+
+      // B. Simulate createDeal before sending
+      setStatusMsg("Step 2/2: Verifying transaction...");
+      try {
+        await publicClient.simulateContract({
+          address: ESCROW_CONTRACT_ADDRESS,
+          abi: ESCROW_ABI,
+          functionName: 'createDeal',
+          args: [
+            formData.sellerAddress as `0x${string}`,
+            amountInUnits,
+            timeoutBigInt
+          ],
+          account: address,
+        });
+      } catch (simError: unknown) {
+        console.error("Simulation failed:", simError);
+        const simMsg = simError instanceof Error ? simError.message : String(simError);
+        // Parse common revert reasons
+        if (simMsg.includes("SelfDeal")) {
+          alert("Error: You cannot buy from yourself. Use a different wallet.");
+        } else if (simMsg.includes("InvalidAmount")) {
+          alert("Error: Amount must be at least 1 USDT.");
+        } else if (simMsg.includes("TimeoutRange")) {
+          alert("Error: Lock period must be between 1 hour and 365 days.");
+        } else if (simMsg.includes("Pausable: paused") || simMsg.includes("EnforcedPause")) {
+          alert("Error: The escrow contract is currently paused by the admin.");
+        } else if (simMsg.includes("transfer amount exceeds allowance") || simMsg.includes("ERC20InsufficientAllowance")) {
+          alert("Error: USDT approval failed. Please try again.");
+        } else if (simMsg.includes("transfer amount exceeds balance") || simMsg.includes("ERC20InsufficientBalance")) {
+          alert("Error: Insufficient USDT balance in your wallet.");
+        } else {
+          alert(`Transaction would fail: ${simMsg.slice(0, 200)}`);
+        }
+        setIsProcessing(false);
+        setStatusMsg("");
+        return;
+      }
+
+      // C. CREATE DEAL (simulation passed — this should succeed)
       setStatusMsg("Step 2/2: Locking Funds...");
       const depositHash = await writeContractAsync({
         address: ESCROW_CONTRACT_ADDRESS,
@@ -122,13 +206,16 @@ function DashboardContent() {
       setSuccess(true);
 
     } catch (error: unknown) {
-      // Log error without exposing details to users in production
       if (process.env.NODE_ENV === 'development') {
         console.error("Transaction Error:", error);
       }
-      // Clean error messaging for user
       const msg = error instanceof Error ? error.message : "Transaction failed. Check wallet balance.";
-      alert(`Error: ${msg}`);
+      // Don't show user-rejected errors as failures
+      if (msg.includes("User rejected") || msg.includes("user rejected")) {
+        setStatusMsg("Transaction cancelled.");
+      } else {
+        alert(`Error: ${msg}`);
+      }
     } finally {
       setIsProcessing(false);
       setStatusMsg("");
@@ -171,6 +258,18 @@ function DashboardContent() {
                         {formData.description}
                     </div>
                 )}
+
+                <div className="liquid-glass p-4 rounded-lg mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <Lock className="w-4 h-4 text-yellow-500/70" />
+                        <span>Lock Period</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                        {Number(formData.timeout) >= 86400
+                          ? `${Math.floor(Number(formData.timeout) / 86400)} day${Math.floor(Number(formData.timeout) / 86400) !== 1 ? 's' : ''}`
+                          : `${Math.floor(Number(formData.timeout) / 3600)} hour${Math.floor(Number(formData.timeout) / 3600) !== 1 ? 's' : ''}`}
+                    </span>
+                </div>
                 
                 <div className="liquid-glass p-6 rounded-xl text-center border-2 border-yellow-500/20 border-dashed mb-6">
                     <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Total Due</p>
@@ -195,11 +294,23 @@ function DashboardContent() {
                 </div>
             </div>
 
+            {isSelfDeal && (
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-4">
+                <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-red-400 font-bold text-sm">Cannot buy your own item</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    Your connected wallet matches the seller address. Please use a different wallet, or share this link with your buyer.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <button 
               onClick={handleLockFunds} 
-              disabled={isProcessing}
+              disabled={isProcessing || !!isSelfDeal}
               className={`w-full font-bold py-4 px-6 rounded-xl transition-all text-lg
-                  ${isProcessing 
+                  ${isProcessing || isSelfDeal
                     ? "bg-gray-700 cursor-not-allowed text-gray-400" 
                     : "bg-gradient-to-r from-yellow-500 to-amber-500 text-black hover:from-yellow-400 hover:to-amber-400 active:scale-[0.98] glow-yellow"}`}
             >
