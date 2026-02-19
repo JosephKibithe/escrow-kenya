@@ -103,17 +103,17 @@ export default function LandingPage() {
 
           <div className="w-full h-full grid lg:grid-cols-2 gap-16 items-center max-w-[1800px] mx-auto">
             {/* LEFT COLUMN: Text Content */}
-            <div className="relative z-10 flex flex-col items-start text-left">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full liquid-glass-yellow text-yellow-400 text-xs font-bold uppercase tracking-widest mb-10 border border-yellow-500/20">
+            <div className="relative z-10 flex flex-col items-start text-left lg:pr-12">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full liquid-glass-yellow text-yellow-400 text-xs font-bold uppercase tracking-widest mb-12 border border-yellow-500/20">
                 <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shadow-[0_0_10px_#FACC15]"></span>
                 Live on Polygon Mainnet
               </div>
 
-              <h1 className="text-6xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9] font-orbitron">
+              <h1 className="text-6xl lg:text-8xl font-black tracking-tighter mb-10 leading-[0.9] font-orbitron">
                 <div className="mb-2">
                   <TextScramble text="Trust is Good." delay={300} speed={50} />
                 </div>
-                <div className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-200 to-amber-500 text-glow-yellow">
+                <div className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-200 to-amber-500 text-glow-yellow pb-2">
                   <TextScramble
                     text="Code is Better."
                     delay={1200}
@@ -122,10 +122,10 @@ export default function LandingPage() {
                 </div>
               </h1>
 
-              <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl leading-relaxed font-light">
+              <p className="text-xl md:text-2xl text-gray-400 mb-14 max-w-2xl leading-relaxed font-light">
                 The escrow protocol that doesn't care about your feelings.{" "}
                 <br />
-                <span className="text-gray-100 font-semibold">
+                <span className="text-gray-100 font-semibold mt-2 block">
                   Lock funds. Deliver goods. Get paid.
                 </span>
               </p>
@@ -133,13 +133,14 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
                 <button
                   onClick={handleEnterApp}
-                  className="w-full sm:w-auto liquid-glass-cta text-yellow-400 font-extrabold text-lg px-10 py-5 rounded-2xl transition-all duration-300"
+                  className="w-full sm:w-auto liquid-glass-cta text-yellow-400 font-bold text-lg px-10 py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300"
                 >
                   {isConnected ? "Launch Dashboard" : "Start Securing Deals"}
+                  <span className="text-xl leading-none">→</span>
                 </button>
                 <a
                   href="/docs"
-                  className="w-full sm:w-auto liquid-glass text-white font-semibold px-10 py-5 rounded-2xl transition-all duration-300 hover:border-yellow-500/30 flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto liquid-glass-button text-white font-semibold px-10 py-5 rounded-2xl flex items-center justify-center gap-2 group"
                 >
                   Read the Docs
                   <span className="group-hover:translate-x-1 transition-transform">
@@ -163,78 +164,107 @@ export default function LandingPage() {
                   <PadlockScene />
                 </Suspense>
               </div>
+            </div>
+          </div>
 
-              {/* Floating Stats - Integrated into the scene layout */}
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-8 z-10 pointer-events-none select-none">
-                {[
-                  { value: "$0", label: "Platform Fee" },
-                  { value: "No Limit", label: "Daily Volume" },
-                  { value: "10s", label: "Settlement" },
-                ].map((stat, i) => (
-                  <div
-                    key={i}
-                    className="text-right backdrop-blur-sm bg-black/20 p-4 rounded-xl border border-white/5 border-r-0 rounded-r-none translate-x-4"
-                  >
-                    <div className="text-5xl font-black text-white mb-1 tracking-tighter font-orbitron">
-                      {stat.value}
-                    </div>
-                    <div className="text-xs font-bold text-yellow-500 uppercase tracking-widest">
-                      {stat.label}
-                    </div>
+          {/* Horizontal Stats Bar (Moved from floating absolute position) */}
+          <div className="absolute bottom-10 left-0 w-full px-6 md:px-16 z-20 pointer-events-none">
+            <div className="max-w-[1800px] mx-auto flex flex-wrap gap-4 md:gap-8 lg:gap-16 justify-center lg:justify-start">
+              {[
+                { value: "$0", label: "Platform Fee" },
+                { value: "Unlimited", label: "Daily Volume" },
+                { value: "< 10s", label: "Settlement Time" },
+              ].map((stat, i) => (
+                <div
+                  key={i}
+                  className="liquid-glass px-6 py-4 rounded-2xl border-white/5 flex flex-col items-center lg:items-start"
+                >
+                  <div className="text-3xl md:text-4xl font-black text-white mb-1 tracking-tighter font-orbitron">
+                    {stat.value}
                   </div>
-                ))}
-              </div>
+                  <div className="text-xs font-bold text-yellow-500 uppercase tracking-widest">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* --- HOW IT WORKS --- */}
+        {/* --- HOW IT WORKS (BENTO GRID) --- */}
         <section
           id="how-it-works"
-          className="py-24 bg-[#09090B] border-y border-white/5"
+          className="py-32 bg-[#09090B] border-y border-white/5 relative"
         >
-          <div className="w-full px-6 md:px-16">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-orbitron">
+          {/* Subtle Background Glow */}
+          <div className="absolute inset-0 bg-radial-gradient from-yellow-500/5 to-transparent opacity-50 pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-6 md:px-16 relative z-10">
+            <div className="text-center mb-20">
+              <div className="inline-block px-4 py-1.5 rounded-full liquid-glass-yellow text-yellow-400 text-xs font-bold uppercase tracking-widest mb-6 border border-yellow-500/20">
+                The Architecture of Trust
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 font-orbitron tracking-tight">
                 The Digital Handshake
               </h2>
-              <p className="text-gray-400">
-                Three steps to eliminate the &quot;Trust Gap&quot;.
+              <p className="text-xl text-gray-400 max-w-2xl mx-auto font-light">
+                Three steps to entirely eliminate the Trust Gap. No middlemen,
+                no disputes, just code.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  num: "01",
-                  title: "Create Invoice",
-                  desc: "Seller generates a payment link with item details, price in USDT, and a delivery timeout.",
-                  accent: false,
-                },
-                {
-                  num: "02",
-                  title: "Lock Funds",
-                  desc: "Buyer clicks the link and deposits into the Smart Contract Vault. Money is safe.",
-                  accent: true,
-                },
-                {
-                  num: "03",
-                  title: "Release & Pay",
-                  desc: "Buyer inspects the item. Satisfied? Release the funds instantly to the Seller.",
-                  accent: false,
-                },
-              ].map((step) => (
-                <div
-                  key={step.num}
-                  className={`${step.accent ? "liquid-glass-yellow" : "liquid-glass"} p-8 rounded-3xl relative overflow-hidden shimmer-overlay group`}
-                >
-                  <div className="step-number text-4xl font-bold text-yellow-500/20 mb-4 group-hover:text-yellow-500/40 transition-colors duration-300 font-orbitron">
-                    {step.num}
+            {/* Bento Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6">
+              {/* Step 1: Create Invoice (Small Box) */}
+              <div className="liquid-glass p-10 rounded-3xl relative overflow-hidden group col-span-1 row-span-1 flex flex-col justify-between">
+                <div>
+                  <div className="step-number text-5xl font-bold text-white/5 mb-6 group-hover:text-yellow-500/20 transition-colors duration-500 font-orbitron">
+                    01
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{step.desc}</p>
+                  <h3 className="text-2xl font-bold mb-4">Create Invoice</h3>
+                  <p className="text-gray-400 leading-relaxed">
+                    Seller generates a smart contract link with item details,
+                    price in USDT, and a strict delivery timeout.
+                  </p>
                 </div>
-              ))}
+              </div>
+
+              {/* Step 2: Lock Funds (Large Hero Box) */}
+              <div className="liquid-glass-yellow p-10 md:p-14 rounded-3xl relative overflow-hidden shimmer-overlay group col-span-1 md:col-span-2 row-span-1 md:row-span-2 flex flex-col justify-between min-h-[400px]">
+                {/* Visual abstract representation of a vault */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 blur-[60px] rounded-full translate-x-1/3 -translate-y-1/3 group-hover:bg-yellow-400/20 transition-all duration-700" />
+
+                <div className="relative z-10 h-full flex flex-col justify-end">
+                  <div className="step-number text-7xl font-black text-yellow-500/20 mb-8 font-orbitron">
+                    02
+                  </div>
+                  <h3 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+                    Lock Funds in Vault
+                  </h3>
+                  <p className="text-xl text-gray-300 leading-relaxed max-w-md font-light">
+                    Buyer clicks the link and deposits into the Polygon Smart
+                    Contract. The money is cryptographically secured.{" "}
+                    <strong className="text-white font-semibold">
+                      The seller knows they'll get paid; the buyer knows they're
+                      protected.
+                    </strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Release & Pay (Small Box) */}
+              <div className="liquid-glass p-10 rounded-3xl relative overflow-hidden group col-span-1 row-span-1 flex flex-col justify-between">
+                <div>
+                  <div className="step-number text-5xl font-bold text-white/5 mb-6 group-hover:text-yellow-500/20 transition-colors duration-500 font-orbitron">
+                    03
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4">Release & Pay</h3>
+                  <p className="text-gray-400 leading-relaxed">
+                    Buyer inspects the delivered item. Satisfied? A single click
+                    releases the funds instantly to the Seller's wallet.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
