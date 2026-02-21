@@ -11,6 +11,9 @@ const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 export const metadata: Metadata = {
   title: "AHADI",
   description: "Trust Protocol",
+  icons: {
+    icon: "/padlock-logo.webp",
+  },
 };
 
 export default async function RootLayout({
