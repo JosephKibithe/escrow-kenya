@@ -2,7 +2,8 @@
 
 import { useAppKit } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import LoadingScreen from "./components/LoadingScreen";
@@ -10,7 +11,14 @@ import TextScramble from "./components/TextScramble";
 import DashboardPreview from "./components/DashboardPreview";
 import { Sparkles, Bot } from "lucide-react";
 
-const PadlockScene = lazy(() => import("./components/PadlockScene"));
+const PadlockScene = dynamic(() => import("./components/PadlockScene"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-24 h-24 rounded-full border-4 border-yellow-500/20 border-t-yellow-400 animate-spin" />
+    </div>
+  ),
+});
 
 export default function LandingPage() {
   const { open } = useAppKit();
@@ -30,8 +38,6 @@ export default function LandingPage() {
       open();
     }
   };
-
-  if (!mounted) return null;
 
   return (
     <>
@@ -90,7 +96,7 @@ export default function LandingPage() {
               onClick={handleEnterApp}
               className="liquid-glass-button text-yellow-400 px-8 py-3 rounded-full text-sm font-bold tracking-wide"
             >
-              {isConnected ? "Go to Dashboard →" : "Sign In"}
+              {mounted && isConnected ? "Go to Dashboard →" : "Sign In"}
             </button>
           </div>
         </nav>
@@ -135,7 +141,9 @@ export default function LandingPage() {
                   onClick={handleEnterApp}
                   className="w-full sm:w-auto liquid-glass-cta text-yellow-400 font-bold text-lg px-10 py-5 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300"
                 >
-                  {isConnected ? "Launch Dashboard" : "Start Securing Deals"}
+                  {mounted && isConnected
+                    ? "Launch Dashboard"
+                    : "Start Securing Deals"}
                   <span className="text-xl leading-none">→</span>
                 </button>
                 <a
@@ -154,15 +162,7 @@ export default function LandingPage() {
             <div className="relative z-10 w-full h-[600px] flex items-center justify-center lg:justify-end">
               {/* 3D Padlock Container */}
               <div className="absolute inset-0 z-0">
-                <Suspense
-                  fallback={
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="w-24 h-24 rounded-full border-4 border-yellow-500/20 border-t-yellow-400 animate-spin" />
-                    </div>
-                  }
-                >
-                  <PadlockScene />
-                </Suspense>
+                <PadlockScene />
               </div>
             </div>
           </div>

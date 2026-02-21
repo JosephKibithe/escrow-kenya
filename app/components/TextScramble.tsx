@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
-const GLYPHS = '█▓░▒₿ΞⒶⒽⒹ◆●★⬡⏣⚡';
+const GLYPHS = "█▓░▒₿ΞⒶⒽⒹ◆●★⬡⏣⚡";
+
+// Use a deterministic pseudo-random function for SSR hydration safety
+function seededRandom(seed: number) {
+  const x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
 
 interface TextScrambleProps {
   text: string;
@@ -17,12 +23,12 @@ interface TextScrambleProps {
 
 export default function TextScramble({
   text,
-  className = '',
+  className = "",
   delay = 0,
   speed = 45,
   pauseDuration = 4000,
 }: TextScrambleProps) {
-  const [displayed, setDisplayed] = useState('');
+  const [displayed, setDisplayed] = useState("");
   const [resolved, setResolved] = useState(0);
   const rafRef = useRef<number>(0);
   const startRef = useRef<number>(0);
@@ -35,19 +41,16 @@ export default function TextScramble({
       if (!startRef.current) startRef.current = now;
       const elapsed = now - startRef.current;
 
-      const charsResolved = Math.min(
-        Math.floor(elapsed / speed),
-        text.length
-      );
+      const charsResolved = Math.min(Math.floor(elapsed / speed), text.length);
 
       setResolved(charsResolved);
 
-      let result = '';
+      let result = "";
       for (let i = 0; i < text.length; i++) {
         if (i < charsResolved) {
           result += text[i];
-        } else if (text[i] === ' ') {
-          result += ' ';
+        } else if (text[i] === " ") {
+          result += " ";
         } else {
           result += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
         }
@@ -84,13 +87,15 @@ export default function TextScramble({
   // Before animation starts, show scrambled glyphs
   if (!hasStarted.current) {
     const placeholder = text
-      .split('')
-      .map((ch) => (ch === ' ' ? ' ' : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]))
-      .join('');
+      .split("")
+      .map((ch, i) =>
+        ch === " " ? " " : GLYPHS[Math.floor(seededRandom(i) * GLYPHS.length)],
+      )
+      .join("");
 
     return (
       <span className={className} aria-label={text}>
-        {placeholder.split('').map((ch, i) => (
+        {placeholder.split("").map((ch, i) => (
           <span
             key={i}
             className="inline-block text-scramble-char"
@@ -105,11 +110,11 @@ export default function TextScramble({
 
   return (
     <span className={className} aria-label={text}>
-      {displayed.split('').map((ch, i) => (
+      {displayed.split("").map((ch, i) => (
         <span
           key={i}
           className={`inline-block ${
-            i < resolved ? 'text-scramble-resolved' : 'text-scramble-char'
+            i < resolved ? "text-scramble-resolved" : "text-scramble-char"
           }`}
         >
           {ch}

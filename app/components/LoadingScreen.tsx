@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface LoadingScreenProps {
   onLoadComplete?: () => void;
   minDuration?: number;
 }
 
-export default function LoadingScreen({ onLoadComplete, minDuration = 1400 }: LoadingScreenProps) {
+export default function LoadingScreen({
+  onLoadComplete,
+  minDuration = 400,
+}: LoadingScreenProps) {
   const [progress, setProgress] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -41,7 +44,7 @@ export default function LoadingScreen({ onLoadComplete, minDuration = 1400 }: Lo
   return (
     <div
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0A0A0A] transition-opacity duration-500 ${
-        fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       {/* Subtle background glow */}
