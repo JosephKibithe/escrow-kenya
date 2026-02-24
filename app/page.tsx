@@ -129,7 +129,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="text-xl md:text-2xl text-gray-400 mb-14 max-w-2xl leading-relaxed font-light">
-                The escrow protocol that doesn't care about your feelings.{" "}
+                The secure escrow protocol built for absolute peace of mind.{" "}
                 <br />
                 <span className="text-gray-100 font-semibold mt-2 block">
                   Lock funds. Deliver goods. Get paid.
