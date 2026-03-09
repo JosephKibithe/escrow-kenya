@@ -4,6 +4,7 @@ import "./globals.css";
 import ContextProvider from "@/context"; // <--- Import the new provider
 import { headers } from "next/headers"; // Required for cookie handling
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"] });
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
@@ -32,6 +33,7 @@ export default async function RootLayout({
       >
         <ContextProvider cookies={cookies}>{children}</ContextProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
